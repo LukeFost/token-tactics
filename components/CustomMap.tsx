@@ -46,7 +46,7 @@ export const generateCustomMapTexture = (
 };
 
 const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, CELL_SIZE: number) => {
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.lineWidth = 1;
 
   cells.forEach(cell => {
@@ -100,14 +100,26 @@ const handleClick = (uv: THREE.Vector2, width: number, height: number) => {
   }
 };
 
-// Modify the updateTexture function
 const updateTexture = () => {
   console.log('Updating texture');
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    drawGrid(ctx, canvas.width, canvas.height, CELL_SIZE);
-    texture.needsUpdate = true;
-    console.log('Texture updated');
+    // Clear the entire canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Redraw the background image
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // Redraw the grid and toggled cells
+      drawGrid(ctx, canvas.width, canvas.height, CELL_SIZE);
+      
+      // Update the texture
+      texture.needsUpdate = true;
+      console.log('Texture updated');
+    };
+    img.src = '/world.png';
   } else {
     console.log('Failed to get 2D context for canvas');
   }
