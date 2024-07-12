@@ -1,34 +1,48 @@
-// components/Sphere.tsx
+// Sphere.tsx
 "use client";
-import React, { useRef, useState } from 'react';
-import { useFrame, ThreeElements } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
+import { generateCustomMapTexture } from './CustomMap';
 
-const Sphere: React.FC<ThreeElements['mesh']> = (props) => {
-  const meshRef = useRef<THREE.Mesh>(null!);
-  const [hovered, setHover] = useState(false);
-  const [active, setActive] = useState(false);
+interface SphereProps {
+  position: [number, number, number];
+  onUSClick?: () => void;
+}
 
-  const texture = useTexture('/world.png'); // Make sure this path is correct
+const Sphere: React.FC<SphereProps> = ({ position, onUSClick }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [handleClickCell, setHandleClickCell] = useState<((uv: THREE.Vector2) => void) | null>(null);
 
-  useFrame((state, delta) => {
-    if (active) {
-      meshRef.current.rotation.y += delta * 0.5;
+  useEffect(() => {
+    console.log('Generating custom map texture');
+    generateCustomMapTexture(
+      2048,
+      1024,
+      (newTexture, handleClick, getCells) => {
+        console.log('Custom map texture generated');
+        setTexture(newTexture);
+        setHandleClickCell(() => handleClick);
+        console.log('Total cells:', getCells().length);
+      }
+    );
+  }, []);
+
+  const handleClick = useCallback((event: ThreeEvent<MouseEvent>) => {
+    console.log('Sphere clicked', event);
+    if (handleClickCell && event.uv) {
+      console.log('Calling handleClickCell with UV:', event.uv);
+      handleClickCell(event.uv);
+    } else {
+      console.log('handleClickCell is not available or event.uv is undefined');
     }
-  });
+  }, [handleClickCell]);
 
   return (
-    <mesh
-      {...props}
-      ref={meshRef}
-      scale={1}
-      onClick={() => setActive(!active)}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-    >
-      <sphereGeometry args={[20, 64, 64]} />
-      <meshStandardMaterial map={texture} />
+    <mesh ref={meshRef} position={position} onClick={handleClick}>
+      <sphereGeometry args={[1, 64, 32]} />
+      <meshStandardMaterial map={texture || undefined} />
     </mesh>
   );
 };
