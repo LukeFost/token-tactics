@@ -116,8 +116,10 @@ const updateTexture = () => {
       drawGrid(ctx, canvas.width, canvas.height, CELL_SIZE);
       
       // Update the texture
-      texture.needsUpdate = true;
-      console.log('Texture updated');
+      if (texture) {
+        texture.needsUpdate = true;
+        console.log('Texture updated');
+      }
     };
     img.src = '/world.png';
   } else {

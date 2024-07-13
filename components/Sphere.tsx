@@ -14,6 +14,8 @@ const Sphere: React.FC<SphereProps> = ({ position, onUSClick }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
   const [handleClickCell, setHandleClickCell] = useState<((uv: THREE.Vector2) => void) | null>(null);
+  const [isTextureReady, setIsTextureReady] = useState(false);
+
 
   useEffect(() => {
     console.log('Generating custom map texture');
@@ -24,10 +26,20 @@ const Sphere: React.FC<SphereProps> = ({ position, onUSClick }) => {
         console.log('Custom map texture generated');
         setTexture(newTexture);
         setHandleClickCell(() => handleClick);
+        setIsTextureReady(true);
         console.log('Total cells:', getCells().length);
       }
     );
   }, []);
+  
+
+  useEffect(() => {
+    if (texture && meshRef.current) {
+      const material = meshRef.current.material as THREE.MeshStandardMaterial;
+      material.map = texture;
+      material.needsUpdate = true;
+    }
+  }, [texture]);
 
   const handleClick = useCallback((event: ThreeEvent<MouseEvent>) => {
     console.log('Sphere clicked', event);
@@ -39,12 +51,12 @@ const Sphere: React.FC<SphereProps> = ({ position, onUSClick }) => {
     }
   }, [handleClickCell]);
 
-  return (
+  return isTextureReady ? (
     <mesh ref={meshRef} position={position} onClick={handleClick}>
       <sphereGeometry args={[1, 64, 32]} />
       <meshStandardMaterial map={texture || undefined} />
     </mesh>
-  );
+  ) : null;
 };
 
 export default Sphere;

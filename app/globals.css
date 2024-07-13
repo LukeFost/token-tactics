@@ -82,3 +82,13 @@ main {
   position: relative;
   overflow: hidden;
 }
+
+/* Prevent scrolling */
+html, body {
+  overflow: hidden;
+}
+
+/* Ensure full height for Next.js app */
+#__next {
+  height: 100%;
+}
