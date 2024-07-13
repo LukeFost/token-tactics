@@ -1,15 +1,19 @@
+// components/LeftDrawer.tsx
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import TerritoryTable from "./TerritoryTable";
+import PlayerManagementButton from "./PlayerManagementButton";
+import { GameContext } from '@/contexts/GameContext';
 
-export function LeftDrawer() {
+export const LeftDrawer: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { ownedTerritories, allTerritories, currentPlayer, currentTurn } = useContext(GameContext);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -21,24 +25,28 @@ export function LeftDrawer() {
   const Content = () => (
     <>
       <div className="flex items-center space-x-4 mb-4">
-      <Avatar>
+        <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Button>Connect</Button>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Controlled Territories</TableHead>
-            <TableHead>Units Earned</TableHead>
-            <TableHead>Bonus Multiplier</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {/* Add table rows here */}
-        </TableBody>
-      </Table>
+      <PlayerManagementButton />
+      <div className="mt-4">
+        <h2 className="text-lg font-semibold mb-2">Game Info</h2>
+        <p>Current Turn: {currentTurn}</p>
+        <p>Current Player: {currentPlayer?.name || 'N/A'}</p>
+      </div>
+      <div className="mt-4">
+        <h2 className="text-lg font-semibold mb-2">Owned Territories</h2>
+        <TerritoryTable territories={ownedTerritories} />
+      
+        <h2 className="text-lg font-semibold mt-6 mb-2">All Territories</h2>
+        <TerritoryTable 
+          territories={allTerritories} 
+          showAllTerritories={true} 
+        />
+      </div>
     </>
   );
 
@@ -74,10 +82,10 @@ export function LeftDrawer() {
         {open ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
       <Sheet open={open} onOpenChange={setOpen}>
-  <SheetContent side="left" className="w-[300px] sm:w-[400px] z-30 bg-white">
-    <Content />
-  </SheetContent>
-</Sheet>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px] z-30 bg-white">
+          <Content />
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

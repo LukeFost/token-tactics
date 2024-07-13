@@ -1,24 +1,29 @@
-"use client";
+// CameraControls.tsx
 import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
 const CameraControls = () => {
-  const controlsRef = useRef(null);
+  const { camera, gl } = useThree();
+  const controlsRef = useRef<typeof OrbitControls>();
 
   useFrame(() => {
-    if (controlsRef.current) {
-      controlsRef.current.update();
-    }
+    controlsRef.current?.update();
   });
 
   return (
     <OrbitControls
       ref={controlsRef}
+      args={[camera, gl.domElement]}
       enableDamping
-      dampingFactor={1}
-      rotateSpeed={0.1}
-      enableZoom={false} // Disable zoom to keep focus on the sphere
+      dampingFactor={0.25}
+      rotateSpeed={0.5}
+      enableZoom={true}
+      zoomSpeed={0.5}
+      enablePan={true}
+      panSpeed={0.5}
+      minDistance={2}
+      maxDistance={10}
     />
   );
 };
