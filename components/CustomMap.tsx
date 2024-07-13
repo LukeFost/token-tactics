@@ -11,17 +11,12 @@ export interface Cell {
   name: string;
 }
 
-interface CustomMapProps {
-  width: number;
-  height: number;
-  cellsX: number;
-  cellsY: number;
-  onCellClick: (cell: Cell) => void;
-}
-
 let cells: Cell[] = [];
 let canvas: HTMLCanvasElement;
 let texture: THREE.Texture;
+
+const CELL_SIZE_LAT = 10; // Size of cells in degrees (latitude)
+const CELL_SIZE_LON = 10; // Size of cells in degrees (longitude)
 
 export const generateCustomMapTexture = (
   width: number,
@@ -63,32 +58,31 @@ const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) 
   ctx.lineWidth = 1;
 
   cells.forEach(cell => {
-    ctx.strokeRect(cell.x, cell.y, CELL_SIZE, CELL_SIZE);
+    const x = (cell.x + 180) / 360 * width;
+    const y = (80 + cell.y) / 180 * height;
+    const cellWidth = CELL_SIZE_LON / 360 * width;
+    const cellHeight = CELL_SIZE_LAT / 180 * height;
+
+    ctx.strokeRect(x, y, cellWidth, cellHeight);
     if (cell.toggled) {
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Red with 50% opacity
-      ctx.fillRect(cell.x, cell.y, CELL_SIZE, CELL_SIZE);
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+      ctx.fillRect(x, y, cellWidth, cellHeight);
     }
   });
 };
 
-const CELL_SIZE = 128;
-const PADDING_PERCENTAGE = 0.1;
-
 const createCells = (width: number, height: number) => {
   cells = [];
-  const paddingY = Math.floor(height * PADDING_PERCENTAGE);
-  const paddingX = Math.floor(width * PADDING_PERCENTAGE);
-  
-  for (let y = paddingY; y < height - paddingY; y += CELL_SIZE) {
-    for (let x = paddingX; x < width - paddingX; x += CELL_SIZE) {
+  for (let lat = 90; lat > -90; lat -= CELL_SIZE_LAT) {
+    for (let lon = -180; lon < 180; lon += CELL_SIZE_LON) {
       cells.push({
-        id: `Cell-${x}-${y}`,
-        x,
-        y,
+        id: `Cell-${lon}-${lat}`,
+        x: lon,
+        y: lat,
         toggled: false,
         owner: '',
         turnCaptured: 0,
-        name: `Cell ${x}-${y}`
+        name: `Cell ${lon}-${lat}`
       });
     }
   }
@@ -97,13 +91,13 @@ const createCells = (width: number, height: number) => {
 
 const handleClick = (uv: THREE.Vector2, width: number, height: number, onCellClick: (cell: Cell) => void) => {
   console.log('handleClick called with UV:', uv);
-  const x = Math.floor(uv.x * width);
-  const y = Math.floor((1 - uv.y) * height);
-  console.log('Calculated pixel coordinates:', { x, y });
+  const lon = uv.x * 360 - 180;
+  const lat = 90 - uv.y * 180;
+  console.log('Calculated coordinates:', { lon, lat });
 
   const clickedCell = cells.find(cell => 
-    cell.x <= x && x < cell.x + CELL_SIZE && 
-    cell.y <= y && y < cell.y + CELL_SIZE
+    cell.x <= lon && lon < cell.x + CELL_SIZE_LON && 
+    cell.y >= lat && lat > cell.y - CELL_SIZE_LAT
   );
   console.log('Found clicked cell:', clickedCell);
   
@@ -143,9 +137,4 @@ const updateTexture = () => {
   } else {
     console.log('Failed to get 2D context for canvas');
   }
-};
-
-// Add this function to log all cells
-const logAllCells = () => {
-  console.log('All cells:', cells);
 };

@@ -79,16 +79,15 @@ const Sphere: React.FC<SphereProps> = ({ position, onCellClick, initializeAllTer
   }, [generateTexture, isTextureReady]);
 
   const handleClick = useCallback((event: ThreeEvent<MouseEvent>) => {
-    console.log('Sphere clicked', event);
+    event.stopPropagation();
     if (handleClickCell && event.uv) {
       console.log('Calling handleClickCell with UV:', event.uv);
       handleClickCell(event.uv);
     } else {
       console.log('handleClickCell is not available or event.uv is undefined');
-      console.log('handleClickCell:', handleClickCell);
-      console.log('event.uv:', event.uv);
     }
   }, [handleClickCell]);
+
 
   const customShaderMaterial = useMemo(() => {
     if (!worldTexture || !normalMap || !roughnessMap || !baseTexture) return null;
@@ -145,10 +144,10 @@ const Sphere: React.FC<SphereProps> = ({ position, onCellClick, initializeAllTer
   }
 
   return (
-    <mesh
-    ref={meshRef}
-    position={position}
-    onClick={handleClick}
+    <mesh 
+    ref={meshRef} 
+    position={position} 
+    onClick={handleClick} 
     material={customShaderMaterial}
   >
     <sphereGeometry args={[1, 64, 32]} />
