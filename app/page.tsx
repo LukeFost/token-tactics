@@ -243,6 +243,7 @@ const HomeContent = () => {
       />
       {isLoading && <p className="text-center mt-4">Loading...</p>}
       {error && <p className="text-center mt-4 text-red-500">{error}</p>}
+      <p className="text-center mt-4">User Balance: {userBalance}</p>
     </main>
   );
 };
