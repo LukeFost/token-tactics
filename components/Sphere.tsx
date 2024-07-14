@@ -129,7 +129,7 @@ onDeploy, onMove }) => {
           onDeploy={(amount) => onDeploy(coord.cityName, amount)}
           onMove={(amount) => onMove(coord.cityName, amount)}
           ref={(el) => (populationMarkerRefs.current[index] = el)}
-          valueDisplay={props.valueDisplay}
+          valueDisplay={valueDisplay}
         />
       ))}
     </group>

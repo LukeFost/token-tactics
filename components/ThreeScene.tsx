@@ -23,7 +23,7 @@ interface ThreeSceneProps {
   populationMarkerData: PopulationMarkerData[];
 }
 
-const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData, valueDisplay = 1 }) => {
+const ThreeScene: React.FC<ThreeSceneProps & { valueDisplay?: 1 | 2 }> = ({ populationMarkerData, valueDisplay = 1 }) => {
   const [clickPosition, setClickPosition] = useState<THREE.Vector2 | null>(null);
   const [coordinates, setCoordinates] = useState<PopulationMarkerData[]>(populationMarkerData);
   const [activeMarker, setActiveMarker] = useState<PopulationMarkerData | null>(null);
