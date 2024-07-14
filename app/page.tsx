@@ -1,12 +1,12 @@
 // page.tsx
 "use client"
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
 import ThreeScene from "@/components/ThreeScene";
 import GamePhaseButtons from "@/components/GamePhaseButtons";
 import { LeftDrawer } from "@/components/LeftDrawer";
 import { RightDrawer } from "@/components/RightDrawer";
-import { GameProvider, useGame } from '@/contexts/GameContext';
-
+import { playersAtom, handleCellClickAtom } from '@/atoms/gameAtoms';
 
 // Define the PopulationMarkerData interface
 interface PopulationMarkerData {
@@ -17,11 +17,12 @@ interface PopulationMarkerData {
   connections: string[];
 }
 
-const HomeContent = () => {
-  const { handleCellClick, setPlayers, setAllTerritories } = useGame();
+export default function Home() {
+  const [, setPlayers] = useAtom(playersAtom);
+  const [, handleCellClick] = useAtom(handleCellClickAtom);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isTurn, setIsTurn] = useState(false);
-  const [populationMarkerData, setPopulationMarkerData] = useState<PopulationMarkerData[]>([
+  const [populationMarkerData] = useState<PopulationMarkerData[]>([
     { lat: 42.16, lon: -21.91, population: 1000, cityName: 'Phoenix', connections: ['City2', 'City3'] },
     { lat: 65, lon: 100, population: 500, cityName: 'City2', connections: ['Phoenix', 'City4'] },
     { lat: 90, lon: 130, population: 750, cityName: 'City3', connections: ['Phoenix', 'City4'] },
@@ -69,13 +70,5 @@ const HomeContent = () => {
         onCards={handleCards}
       />
     </main>
-  );
-};
-
-export default function Home() {
-  return (
-    <GameProvider>
-      <HomeContent />
-    </GameProvider>
   );
 }

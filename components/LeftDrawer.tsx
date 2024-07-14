@@ -1,6 +1,7 @@
 // components/LeftDrawer.tsx
 "use client"
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
+import { useAtom } from 'jotai';
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,12 +9,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import TerritoryTable from "./TerritoryTable";
 import PlayerManagementButton from "./PlayerManagementButton";
-import { GameContext } from '@/contexts/GameContext';
+import { ownedTerritoriesAtom, allTerritoriesAtom, currentPlayerAtom, currentTurnAtom } from '@/atoms/gameAtoms';
 
 export const LeftDrawer: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { ownedTerritories, allTerritories, currentPlayer, currentTurn } = useContext(GameContext);
+  const [ownedTerrit ories] = useAtom(ownedTerritoriesAtom);
+  const [allTerritories] = useAtom(allTerritoriesAtom);
+  const [currentPlayer] = useAtom(currentPlayerAtom);
+  const [currentTurn] = useAtom(currentTurnAtom);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);

@@ -1,12 +1,14 @@
 // ThreeScene.tsx
 "use client";
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
+import { useAtom } from 'jotai';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import Sphere from './Sphere';
 import Stars from './Stars';
 import CameraControls from './CameraControls';
 import ArcingArrow from './ArcingArrow';
+import { handleCellClickAtom } from '@/atoms/gameAtoms';
 
 // Define the PopulationMarkerData interface
 interface PopulationMarkerData {
@@ -24,9 +26,8 @@ interface ThreeSceneProps {
 const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
   const [clickPosition, setClickPosition] = useState<THREE.Vector2 | null>(null);
   const [coordinates, setCoordinates] = useState<PopulationMarkerData[]>(populationMarkerData);
-
-
   const [activeMarker, setActiveMarker] = useState<PopulationMarkerData | null>(null);
+  const [, handleCellClick] = useAtom(handleCellClickAtom);
 
   const handleDeploy = (cityName: string, amount: number) => {
     setCoordinates(prev => prev.map(coord => 
@@ -48,7 +49,8 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
     const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     setClickPosition(new THREE.Vector2(x, y));
-  }, []);
+    handleCellClick({ x, y });
+  }, [handleCellClick]);
 
   const updateActiveMarker = useCallback((marker: PopulationMarkerData | null) => {
     setActiveMarker(marker);
@@ -86,23 +88,20 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
           />
           <Stars count={10000} />
           {activeMarker && coordinates.map((coord, index) => {
-  // Find the active marker in the coordinates array
-  const activeCity = coordinates.find(c => c.cityName === activeMarker.cityName);
-  
-  // Check if the current coord is a connection of the active city
-  if (activeCity && activeCity.connections.includes(coord.cityName)) {
-    return (
-      <ArcingArrow
-        key={index}
-        start={latLonToVector3(activeMarker.lat, activeMarker.lon)}
-        end={latLonToVector3(coord.lat, coord.lon)}
-        buffer={1}
-        coneSize={0.05}
-      />
-    );
-  }
-  return null;
-})}
+            const activeCity = coordinates.find(c => c.cityName === activeMarker.cityName);
+            if (activeCity && activeCity.connections.includes(coord.cityName)) {
+              return (
+                <ArcingArrow
+                  key={index}
+                  start={latLonToVector3(activeMarker.lat, activeMarker.lon)}
+                  end={latLonToVector3(coord.lat, coord.lon)}
+                  buffer={1}
+                  coneSize={0.05}
+                />
+              );
+            }
+            return null;
+          })}
         </Suspense>
         <CameraControls />
       </Canvas>
