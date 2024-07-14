@@ -6,6 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
 import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Toggle } from "@/components/ui/toggle";
+import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
 
 interface GamePhaseButtonsProps {
   isGameStarted: boolean;
@@ -32,8 +36,8 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
   const [, useCard] = useAtom(useCardAtom);
   const [players] = useAtom(playersAtom);
 
-  if (!cards || cards.length === 0) {
-    return null; // or return a loading indicator
+  if (!cards) {
+    return <div>Loading...</div>; // or any other loading indicator
   }
 
   const getCurrentPhaseText = () => {
@@ -137,18 +141,22 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
                     <DialogTitle>Your Cards</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    {cards.map((card) => (
-                      <div key={card.id} className="flex justify-between items-center">
-                        <div>
-                          <h3>{card.name}</h3>
-                          <p>{card.description}</p>
-                          <p>Owned: {card.count}</p>
+                    {cards && cards.length > 0 ? (
+                      cards.map((card) => (
+                        <div key={card.id} className="flex justify-between items-center">
+                          <div>
+                            <h3>{card.name}</h3>
+                            <p>{card.description}</p>
+                            <p>Owned: {card.count}</p>
+                          </div>
+                          <Button onClick={() => useCard(card.id)} disabled={card.count === 0}>
+                            Use
+                          </Button>
                         </div>
-                        <Button onClick={() => useCard(card.id)} disabled={card.count === 0}>
-                          Use
-                        </Button>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p>No cards available.</p>
+                    )}
                   </div>
                 </DialogContent>
               </Dialog>
