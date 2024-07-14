@@ -1,7 +1,8 @@
 "use client"
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -38,6 +39,9 @@ export function RightDrawer() {
           </Button>
         </DialogTrigger>
         <DialogContent>
+          <VisuallyHidden>
+            <DialogTitle>Right Drawer Content</DialogTitle>
+          </VisuallyHidden>
           <Content />
         </DialogContent>
       </Dialog>
