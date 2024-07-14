@@ -19,11 +19,11 @@ const PlayerManagementButton: React.FC = () => {
   const handleAddPlayer = useCallback(() => {
     const newPlayer: Player = {
       id: Date.now().toString(),
-      name: `Player ${players.length + 1}`,
+      name: `Player ${players?.length ? players.length + 1 : 1}`,
       color: 'rgba(255, 0, 0, 1)',
     };
-    setPlayers(prevPlayers => [...prevPlayers, newPlayer]);
-  }, [players.length, setPlayers]);
+    setPlayers(prevPlayers => [...(prevPlayers || []), newPlayer]);
+  }, [players, setPlayers]);
 
   const handleEditPlayer = useCallback((player: Player) => {
     setEditingPlayer(player);
@@ -68,15 +68,19 @@ const PlayerManagementButton: React.FC = () => {
 
   const renderPlayerList = useMemo(() => (
     <div>
-      {players.map(player => (
-        <div key={player.id} className="flex items-center justify-between mt-2">
-          <span>{player.name}</span>
-          <div>
-            <Button variant="ghost" onClick={() => handleEditPlayer(player)}>Edit</Button>
-            <Button variant="ghost" onClick={() => handleRemovePlayer(player.id)}>Remove</Button>
+      {players && players.length > 0 ? (
+        players.map(player => (
+          <div key={player.id} className="flex items-center justify-between mt-2">
+            <span>{player.name}</span>
+            <div>
+              <Button variant="ghost" onClick={() => handleEditPlayer(player)}>Edit</Button>
+              <Button variant="ghost" onClick={() => handleRemovePlayer(player.id)}>Remove</Button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <p>No players added yet.</p>
+      )}
       <Button onClick={handleAddPlayer} className="mt-4">Add Player</Button>
     </div>
   ), [players, handleEditPlayer, handleRemovePlayer, handleAddPlayer]);
