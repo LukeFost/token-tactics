@@ -17,10 +17,15 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@react-three/drei": "^9.108.3",
     "@react-three/fiber": "^8.16.8",
+    "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-table": "^8.19.2",
     "@types/three": "^0.166.0",
+    "@web3modal/wagmi": "^5.0.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "ethers": "^5.7.2",
+    "fhevmjs": "^0.4.0-3",
+    "hardhat": "^2.22.6",
     "lucide-react": "^0.408.0",
     "next": "14.2.5",
     "react": "^18",
@@ -29,7 +34,9 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.166.1",
     "three-stdlib": "^2.30.4",
-    "vaul": "^0.9.1"
+    "vaul": "^0.9.1",
+    "viem": "^2.17.3",
+    "wagmi": "^2.10.10"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -40,5 +47,8 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "nextConfig": {
+    "webpack": "./custom-webpack5.js"
   }
 }

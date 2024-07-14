@@ -24,6 +24,8 @@ interface GameContextType {
   nextTurn: () => void;
   addTerritory: (territory: Territory) => void;
   removeTerritory: (territoryId: string) => void;
+  currentGameID: string;
+  setCurrentGameID: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const GameContext = createContext<GameContextType>({} as GameContextType);
@@ -34,6 +36,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [ownedTerritories, setOwnedTerritories] = useState<Territory[]>([]);
   const [allTerritories, setAllTerritories] = useState<Territory[]>([]);
   const [currentTurn, setCurrentTurn] = useState(1);
+  const [currentGameID, setCurrentGameID] = useState<string>('');
+
 
   const nextTurn = useCallback(() => {
     const nextPlayerIndex = (players.indexOf(currentPlayer!) + 1) % players.length;
@@ -147,6 +151,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       nextTurn,
       addTerritory,
       removeTerritory,
+      currentGameID,
+      setCurrentGameID,
     }}>
       {children}
     </GameContext.Provider>

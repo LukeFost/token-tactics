@@ -1,5 +1,3 @@
-// components/LeftDrawer.tsx
-"use client"
 import { useState, useEffect, useContext } from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -9,11 +7,15 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import TerritoryTable from "./TerritoryTable";
 import PlayerManagementButton from "./PlayerManagementButton";
 import { GameContext } from '@/contexts/GameContext';
+import ConnectButton from "./ConnectButton";
+import RecentGames from "./RecentGames";
 
 export const LeftDrawer: React.FC = () => {
-  const [open, setOpen] = useState(false);
+ const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { ownedTerritories, allTerritories, currentPlayer, currentTurn } = useContext(GameContext);
+const [testResult, setTestResult] = useState(null);
+
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -22,6 +24,12 @@ export const LeftDrawer: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(()=> {
+    console.log(testResult, 'TestResult')
+  },[testResult])
+
+
+
   const Content = () => (
     <>
       <div className="flex items-center space-x-4 mb-4">
@@ -29,13 +37,20 @@ export const LeftDrawer: React.FC = () => {
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <Button>Connect</Button>
+        <ConnectButton/>
       </div>
       <PlayerManagementButton />
       <div className="mt-4">
         <h2 className="text-lg font-semibold mb-2">Game Info</h2>
         <p>Current Turn: {currentTurn}</p>
         <p>Current Player: {currentPlayer?.name || 'N/A'}</p>
+        <Button
+          variant="outline"
+          className="mt-2"
+          onClick={() => setIsRecentGamesOpen(true)}
+        >
+          Current Games
+        </Button>
       </div>
       <div className="mt-4">
         <h2 className="text-lg font-semibold mb-2">Owned Territories</h2>
@@ -50,6 +65,9 @@ export const LeftDrawer: React.FC = () => {
     </>
   );
 
+  const [isRecentGamesOpen, setIsRecentGamesOpen] = useState(false);
+
+
   if (isMobile) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -62,6 +80,7 @@ export const LeftDrawer: React.FC = () => {
           <Content />
         </DialogContent>
       </Dialog>
+      
     );
   }
 
@@ -86,6 +105,11 @@ export const LeftDrawer: React.FC = () => {
           <Content />
         </SheetContent>
       </Sheet>
+      <Dialog open={isRecentGamesOpen} onOpenChange={setIsRecentGamesOpen}>
+        <DialogContent>
+          <RecentGames isGameStarted={false} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

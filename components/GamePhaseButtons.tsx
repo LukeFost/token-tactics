@@ -1,6 +1,9 @@
 // components/GamePhaseButtons.tsx
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button } from "@/components/ui/button";
+import { useWriteContract } from "wagmi";
+import { riskABI, riskAddress } from "@/abi/riskABI";
+import { GameContext } from '@/contexts/GameContext';
 
 interface GamePhaseButtonsProps {
   isGameStarted: boolean;
@@ -19,6 +22,25 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
   onBuy,
   onCards
 }) => {
+  const { writeContract } = useWriteContract();
+  const { currentGameID } = useContext(GameContext);
+
+  const handleStartGame = async () => {
+    try {
+      await writeContract({
+        abi: riskABI,
+        address: riskAddress,
+        functionName: 'startGame',
+        args: [BigInt(currentGameID)],
+      });
+      console.log("Game successfully joined!");
+      onStartGame();
+    } catch (error) {
+      console.error("Error joining game:", error);
+      // Handle error (e.g., show an error message to the user)
+    }
+  };
+
   const getCurrentPhaseText = () => {
     if (!isGameStarted) {
       return null;
@@ -68,7 +90,7 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
             <Button
               variant="default"
               className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6"
-              onClick={onStartGame}
+              onClick={handleStartGame}
             >
               Start Game
             </Button>
