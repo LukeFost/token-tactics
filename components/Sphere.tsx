@@ -2,6 +2,7 @@
 "use client";
 import React, { useRef, useMemo, useCallback, useState } from 'react';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import PopulationMarker from './PopulationMarker';
 import PopulationMarkerUI from './PopulationMarkerUI';
