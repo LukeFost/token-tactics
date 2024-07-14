@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { Web3Modal } from '../../context/web3modal';
+import { ethers } from 'ethers';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
@@ -18,14 +18,44 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const { isConnected, address } = useAccount();
-  const web3Modal = Web3Modal();
+  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        try {
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            setIsConnected(true);
+            setAddress(accounts[0]);
+          } else {
+            setIsConnected(false);
+            setAddress(null);
+          }
+        } catch (error) {
+          console.error("Failed to check connection:", error);
+          setIsConnected(false);
+          setAddress(null);
+        }
+      }
+    };
+
+    checkConnection();
+    window.ethereum?.on('accountsChanged', checkConnection);
+
+    return () => {
+      window.ethereum?.removeListener('accountsChanged', checkConnection);
+    };
+  }, []);
 
   useEffect(() => {
     if (isConnected && address) {
-      setUserId(address);
+      // Assuming you have a setUserId function, update it here
+      // setUserId(address);
     } else {
-      setUserId(null);
+      // setUserId(null);
     }
   }, [isConnected, address]);
 
