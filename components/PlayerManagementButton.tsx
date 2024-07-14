@@ -1,6 +1,7 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
 import { GameContext } from '@/contexts/GameContext';
@@ -92,7 +93,9 @@ const PlayerManagementButton: React.FC = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Player Management</DialogTitle>
+          <VisuallyHidden asChild>
+            <DialogTitle>Player Management</DialogTitle>
+          </VisuallyHidden>
         </DialogHeader>
         {editingPlayer ? renderEditingContent : renderPlayerList}
       </DialogContent>
