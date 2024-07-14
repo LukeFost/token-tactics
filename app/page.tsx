@@ -43,9 +43,9 @@ const HomeContent = () => {
   const [isTurn, setIsTurn] = useState(false);
   const [populationMarkerData, setPopulationMarkerData] = useState<PopulationMarkerData[]>(INITIAL_POPULATION_MARKER_DATA);
   const [currentGameID, setCurrentGameID] = useState(0n);
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [address, setAddress] = useState<string | null>(null);
+  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+  const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
+  const [address, setAddress] = useState<string | undefined>(undefined);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
