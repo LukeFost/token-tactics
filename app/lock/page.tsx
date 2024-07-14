@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
 import ConnectButton from '@/components/ConnectButton';
+import { Web3Modal } from '../../context/web3modal';
 
 interface Game {
   id: string;
@@ -20,6 +21,9 @@ const LockScreen: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const web3Modal = Web3Modal();
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -52,10 +56,11 @@ const LockScreen: React.FC = () => {
 
   useEffect(() => {
     if (isConnected && address) {
-      // Assuming you have a setUserId function, update it here
-      // setUserId(address);
+      setUserId(address);
+      setIsSignedIn(true);
     } else {
-      // setUserId(null);
+      setUserId(null);
+      setIsSignedIn(false);
     }
   }, [isConnected, address]);
 
@@ -68,7 +73,7 @@ const LockScreen: React.FC = () => {
       setUserId(null);
       setGames([]);
     }
-  }, [gameId, router]);
+  }, [gameId, router, setIsSignedIn, setUserId, setGames]);
 
 
   const handleEnterGame = (selectedGameId: string) => {
