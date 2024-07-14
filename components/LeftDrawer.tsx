@@ -34,7 +34,6 @@ export const LeftDrawer: React.FC = () => {
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <Button>Connect</Button>
       </div>
       <ErrorBoundary fallback={<div>Player Management is currently unavailable.</div>}>
         <PlayerManagementButton />

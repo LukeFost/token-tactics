@@ -1,13 +1,14 @@
 // page.tsx
 "use client"
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
 import ThreeScene from "@/components/ThreeScene";
 import GamePhaseButtons from "@/components/GamePhaseButtons";
 import { LeftDrawer } from "@/components/LeftDrawer";
 import { RightDrawer } from "@/components/RightDrawer";
 import ResourceBar from "@/components/ResourceBar";
-import { playersAtom, handleCellClickAtom, isGameStartedAtom, isTurnAtom, currentPlayerAtom, nextTurnAtom } from '@/atoms/gameAtoms';
+import { playersAtom, handleCellClickAtom, isGameStartedAtom, isTurnAtom, currentPlayerAtom, nextTurnAtom, gameIdAtom } from '@/atoms/gameAtoms';
 
 // Define the PopulationMarkerData interface
 interface PopulationMarkerData {
@@ -26,12 +27,20 @@ const populationMarkerData: PopulationMarkerData[] = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [, setPlayers] = useAtom(playersAtom);
   const [, handleCellClick] = useAtom(handleCellClickAtom);
   const [isGameStarted, setIsGameStarted] = useAtom(isGameStartedAtom);
   const [isTurn, setIsTurn] = useAtom(isTurnAtom);
   const [, setCurrentPlayer] = useAtom(currentPlayerAtom);
   const [, nextTurn] = useAtom(nextTurnAtom);
+  const [gameId] = useAtom(gameIdAtom);
+
+  useEffect(() => {
+    if (!gameId) {
+      router.push('/lock');
+    }
+  }, [gameId, router]);
 
   useEffect(() => {
     // Initialize players
@@ -50,6 +59,10 @@ export default function Home() {
     setIsTurn(false);
     nextTurn();
   };
+
+  if (!gameId) {
+    return null; // or a loading indicator
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 overflow-hidden">

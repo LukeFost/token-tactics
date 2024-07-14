@@ -14,6 +14,7 @@ export const allTerritoriesAtom = atom<Territory[]>([]);
 export const currentTurnAtom = atom<number>(1);
 export const isGameStartedAtom = atom<boolean>(false);
 export const isTurnAtom = atom<boolean>(false);
+export const gameIdAtom = atom<string | null>(null);
 
 export const nextTurnAtom = atom(
   null,
