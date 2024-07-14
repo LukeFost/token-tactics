@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { ethers } from 'ethers';
+import { Web3Modal } from '../../context/web3modal';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
 import ConnectButton from '@/components/ConnectButton';
-import { Web3Modal } from '../../context/web3modal';
 
 interface Game {
   id: string;
@@ -19,48 +18,13 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const web3Modal = Web3Modal();
-
-  useEffect(() => {
-    const checkConnection = async () => {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        try {
-          const accounts = await provider.listAccounts();
-          if (accounts.length > 0) {
-            setIsConnected(true);
-            setAddress(accounts[0]);
-          } else {
-            setIsConnected(false);
-            setAddress(null);
-          }
-        } catch (error) {
-          console.error("Failed to check connection:", error);
-          setIsConnected(false);
-          setAddress(null);
-        }
-      }
-    };
-
-    checkConnection();
-    window.ethereum?.on('accountsChanged', checkConnection);
-
-    return () => {
-      window.ethereum?.removeListener('accountsChanged', checkConnection);
-    };
-  }, []);
 
   useEffect(() => {
     if (isConnected && address) {
       setUserId(address);
-      setIsSignedIn(true);
     } else {
       setUserId(null);
-      setIsSignedIn(false);
     }
   }, [isConnected, address]);
 
@@ -73,7 +37,7 @@ const LockScreen: React.FC = () => {
       setUserId(null);
       setGames([]);
     }
-  }, [gameId, router, setIsSignedIn, setUserId, setGames]);
+  }, [gameId, router]);
 
 
   const handleEnterGame = (selectedGameId: string) => {
