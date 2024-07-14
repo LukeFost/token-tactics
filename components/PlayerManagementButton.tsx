@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -16,27 +16,27 @@ const PlayerManagementButton: React.FC = () => {
   const { players, setPlayers } = useContext(GameContext);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = useCallback(() => {
     const newPlayer: Player = {
       id: Date.now().toString(),
       name: `Player ${players.length + 1}`,
       color: 'rgba(255, 0, 0, 1)',
     };
-    setPlayers([...players, newPlayer]);
-  };
+    setPlayers(prevPlayers => [...prevPlayers, newPlayer]);
+  }, [players.length, setPlayers]);
 
-  const handleEditPlayer = (player: Player) => {
+  const handleEditPlayer = useCallback((player: Player) => {
     setEditingPlayer(player);
-  };
+  }, []);
 
-  const handleRemovePlayer = (playerId: string) => {
-    setPlayers(players.filter(p => p.id !== playerId));
-  };
+  const handleRemovePlayer = useCallback((playerId: string) => {
+    setPlayers(prevPlayers => prevPlayers.filter(p => p.id !== playerId));
+  }, [setPlayers]);
 
-  const handleSaveEdit = (updatedPlayer: Player) => {
-    setPlayers(players.map(p => p.id === updatedPlayer.id ? updatedPlayer : p));
+  const handleSaveEdit = useCallback((updatedPlayer: Player) => {
+    setPlayers(prevPlayers => prevPlayers.map(p => p.id === updatedPlayer.id ? updatedPlayer : p));
     setEditingPlayer(null);
-  };
+  }, [setPlayers]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -55,17 +55,17 @@ const PlayerManagementButton: React.FC = () => {
             </Button>
             <Input
               value={editingPlayer.name}
-              onChange={(e) => setEditingPlayer({ ...editingPlayer, name: e.target.value })}
+              onChange={(e) => setEditingPlayer(prev => prev ? { ...prev, name: e.target.value } : null)}
               className="mt-4"
               placeholder="Player Name"
             />
             <Input
               value={editingPlayer.color}
-              onChange={(e) => setEditingPlayer({ ...editingPlayer, color: e.target.value })}
+              onChange={(e) => setEditingPlayer(prev => prev ? { ...prev, color: e.target.value } : null)}
               className="mt-2"
               placeholder="RGBA Color (e.g., rgba(255, 0, 0, 1))"
             />
-            <Button onClick={() => handleSaveEdit(editingPlayer)} className="mt-4">
+            <Button onClick={() => editingPlayer && handleSaveEdit(editingPlayer)} className="mt-4">
               Save Changes
             </Button>
           </div>
