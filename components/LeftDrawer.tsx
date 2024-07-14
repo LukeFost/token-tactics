@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import TerritoryTable from "./TerritoryTable";
 import PlayerManagementButton from "./PlayerManagementButton";
-import ErrorBoundary from "./ErrorBoundary";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { ownedTerritoriesAtom, allTerritoriesAtom, currentPlayerAtom, currentTurnAtom } from '@/atoms/gameAtoms';
 
 export const LeftDrawer: React.FC = () => {
