@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAtom } from 'jotai';
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronRight, ChevronLeft } from "lucide-react";
@@ -66,6 +66,7 @@ export const LeftDrawer: React.FC = () => {
           </Button>
         </DialogTrigger>
         <DialogContent>
+          <DialogTitle className="sr-only">Left Drawer Content</DialogTitle>
           <Content />
         </DialogContent>
       </Dialog>
