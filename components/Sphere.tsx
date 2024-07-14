@@ -101,16 +101,10 @@ const Sphere: React.FC<SphereProps> = ({
       const clickedMarkerIndex = populationMarkerRefs.current.indexOf(intersects[0].object as THREE.Mesh);
       const clickedMarker = coordinates[clickedMarkerIndex];
       updateActiveMarker(clickedMarker);
-      setSelectedMarker(clickedMarker);
-      
-      // Convert 3D position to 2D screen coordinates
-      const vector = new THREE.Vector3().setFromMatrixPosition(intersects[0].object.matrixWorld);
-      vector.project(camera);
-      const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-      const y = (-(vector.y - 1) * 0.5) * window.innerHeight;
-      setContextMenuPosition({ x, y });
+      setSelectedMarker(prevMarker => 
+        prevMarker && prevMarker.cityName === clickedMarker.cityName ? null : clickedMarker
+      );
     } else {
-      setContextMenuPosition(null);
       setSelectedMarker(null);
     }
   }, [coordinates, updateActiveMarker, camera, clickPosition]);
@@ -153,13 +147,8 @@ const Sphere: React.FC<SphereProps> = ({
           />
         ))}
       </group>
-      {contextMenuPosition && selectedMarker && (
-        <Html style={{
-          position: 'absolute',
-          top: `${contextMenuPosition.y}px`,
-          left: `${contextMenuPosition.x}px`,
-          zIndex: 1000,
-        }}>
+      {selectedMarker && (
+        <Html>
           <PopulationMarkerUI
             cityName={selectedMarker.cityName}
             population={selectedMarker.population}
