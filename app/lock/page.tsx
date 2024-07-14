@@ -33,11 +33,6 @@ const LockScreen: React.FC = () => {
   useEffect(() => {
     if (gameId) {
       router.push('/');
-    } else {
-      // Reset all state if game ID is empty
-      setIsSignedIn(false);
-      setUserId(null);
-      setGames([]);
     }
   }, [gameId, router]);
 
