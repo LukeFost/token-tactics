@@ -49,6 +49,7 @@ const HomeContent = () => {
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userBalance, setUserBalance] = useState<string>('0');
 
   const ethersProvider = useEthersProvider();
 
@@ -87,12 +88,12 @@ const HomeContent = () => {
         return;
       }
   
-      const signer = ethersProvider.getSigner();
-      console.log(signer, 'INSATNCE')
+      const signer = await ethersProvider.getSigner();
+      console.log(signer, 'SIGNER')
       const instance = await createInstance(riskAddress, ethersProvider, signer) as FhevmInstance
       const contract = new ethers.Contract(riskAddress, riskABI, signer);
 
-      console.log(instance, 'INSATNCE')
+      console.log(instance, 'INSTANCE')
       
       const token = instance.getPublicKey(riskAddress);
       if (!token || typeof token !== 'object' || !token.publicKey) {
@@ -109,12 +110,16 @@ const HomeContent = () => {
       );
       
       // Decrypt the balance
-      const balance = await instance.decrypt(riskAddress, encryptedBalance);
+      const balance = instance.decrypt(riskAddress, encryptedBalance);
       console.log("Balance:", balance);
+
+      // Set the balance in the component state
+      setUserBalance(String(balance));
     } catch (e) {
       console.error("Error in reencrypt:", e);
+      setError('Failed to reencrypt and get balance. Please try again.');
     }
-  }, [currentGameID, ethersProvider]);
+  }, [currentGameID, ethersProvider, setUserBalance, setError]);
 
 
   useEffect(() => {
