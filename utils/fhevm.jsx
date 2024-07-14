@@ -5,58 +5,60 @@ import { initFhevm, createInstance } from 'fhevmjs';
 let provider;
 let instance;
 let isInitialized = false;
+let initializationPromise = null;
 
 export const init = async () => {
-  if (!isInitialized) {
-    try {
-      await initFhevm();
-      if (typeof window !== 'undefined' && window.ethereum) {
-        provider = new BrowserProvider(window.ethereum);
-      } else {
-        throw new Error("Window.ethereum is not available. Please make sure you're using a Web3-enabled browser.");
+  if (!isInitialized && !initializationPromise) {
+    initializationPromise = (async () => {
+      try {
+        await initFhevm();
+        if (typeof window !== 'undefined' && window.ethereum) {
+          provider = new BrowserProvider(window.ethereum);
+        } else {
+          throw new Error("Window.ethereum is not available. Please make sure you're using a Web3-enabled browser.");
+        }
+        isInitialized = true;
+      } catch (error) {
+        console.error("Initialization error:", error);
+        throw error;
+      } finally {
+        initializationPromise = null;
       }
-      isInitialized = true;
-    } catch (error) {
-      console.error("Initialization error:", error);
-      throw error;
-    }
+    })();
   }
+  return initializationPromise;
 };
 
 export const createFhevmInstance = async () => {
-  if (!isInitialized) {
-    await init();
+  await init();
+  
+  if (!instance) {
+    try {
+      const network = await provider.getNetwork();
+      const chainId = network.chainId;
+      
+      const FHE_LIB_ADDRESS = '0x000000000000000000000000000000000000005d';
+      const publicKey = await provider.call({
+        to: FHE_LIB_ADDRESS,
+        data: "0xd9d47bb001",
+      });
+      
+      const decoded = AbiCoder.defaultAbiCoder().decode(["bytes"], publicKey);
+      const decodedPublicKey = decoded[0];
+      
+      instance = await createInstance({ chainId, publicKey: decodedPublicKey });
+    } catch (error) {
+      console.error("Error creating FHEVM instance:", error);
+      throw error;
+    }
   }
   
-  try {
-    const network = await provider.getNetwork();
-    const chainId = network.chainId;
-    
-    const FHE_LIB_ADDRESS = '0x000000000000000000000000000000000000005d';
-    const publicKey = await provider.call({
-      to: FHE_LIB_ADDRESS,
-      data: "0xd9d47bb001",
-    });
-    
-    const decoded = AbiCoder.defaultAbiCoder().decode(["bytes"], publicKey);
-    const decodedPublicKey = decoded[0];
-    
-    instance = await createInstance({ chainId, publicKey: decodedPublicKey });
-    return instance;
-  } catch (error) {
-    console.error("Error creating FHEVM instance:", error);
-    throw error;
-  }
+  return instance;
 };
 
 export const getInstance = async () => {
   if (!instance) {
-    try {
-      await createFhevmInstance();
-    } catch (error) {
-      console.error("Error getting instance:", error);
-      throw error;
-    }
+    await createFhevmInstance();
   }
   return instance;
 };
