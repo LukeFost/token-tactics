@@ -15,7 +15,7 @@ interface Game {
 }
 
 const web3ModalConfig = {
-  network: "mainnet", // or the network you're using
+  network: "inco", // or the network you're using
   cacheProvider: true,
   providerOptions: {
     // Configure the provider options as needed
