@@ -23,24 +23,11 @@ interface ThreeSceneProps {
   populationMarkerData: PopulationMarkerData[];
 }
 
-const ThreeScene: React.FC<ThreeSceneProps & { valueDisplay?: 1 | 2 }> = ({ populationMarkerData, valueDisplay = 1 }) => {
+const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
   const [clickPosition, setClickPosition] = useState<THREE.Vector2 | null>(null);
-  const [coordinates, setCoordinates] = useState<PopulationMarkerData[]>(populationMarkerData);
+  const [coordinates] = useState<PopulationMarkerData[]>(populationMarkerData);
   const [activeMarker, setActiveMarker] = useState<PopulationMarkerData | null>(null);
   const [, handleCellClick] = useAtom(handleCellClickAtom);
-
-  const handleDeploy = (cityName: string, amount: number) => {
-    setCoordinates(prev => prev.map(coord => 
-      coord.cityName === cityName ? { ...coord, population: coord.population + amount } : coord
-    ));
-  };
-
-  const handleMove = (cityName: string, amount: number) => {
-    setCoordinates(prev => prev.map(coord => 
-      coord.cityName === cityName ? { ...coord, population: coord.population - amount } : coord
-    ));
-    // Here you would also update the population of the destination city
-  };
   
   const handleRightClick = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
@@ -56,53 +43,26 @@ const ThreeScene: React.FC<ThreeSceneProps & { valueDisplay?: 1 | 2 }> = ({ popu
     setActiveMarker(marker);
   }, []);
 
-  const latLonToVector3 = (lat: number, lon: number, radius: number = 1.02) => {
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lon + 180) * (Math.PI / 180);
-    const x = -(radius * Math.sin(phi) * Math.cos(theta));
-    const z = radius * Math.sin(phi) * Math.sin(theta);
-    const y = radius * Math.cos(phi);
-    return new THREE.Vector3(x, y, z);
-  };
-
   return (
     <>
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 75 }}
+        camera={{ position: [0, 0, 0.5], fov: 75 }}
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
         gl={{ alpha: false }}
         color="#000000"
         onContextMenu={handleRightClick}
       >
         <ambientLight intensity={0.3} />
-        <directionalLight position={[0, 5, 5]} intensity={10} />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} />
+        <directionalLight position={[0, 0.5, 0.5]} intensity={1} />
+        <pointLight position={[-1, -1, -1]} intensity={0.5} />
         <Suspense fallback={null}>
           <Sphere 
             position={[0, 0, 0]} 
             clickPosition={clickPosition}
             coordinates={coordinates}
             updateActiveMarker={updateActiveMarker}
-            onDeploy={handleDeploy}
-            onMove={handleMove}
-            valueDisplay={valueDisplay}
           />
-          <Stars count={10000} />
-          {activeMarker && coordinates && coordinates.length > 0 && coordinates.map((coord, index) => {
-            const activeCity = coordinates.find(c => c.cityName === activeMarker.cityName);
-            if (activeCity && activeCity.connections && activeCity.connections.includes(coord.cityName)) {
-              return (
-                <ArcingArrow
-                  key={index}
-                  start={latLonToVector3(activeMarker.lat, activeMarker.lon)}
-                  end={latLonToVector3(coord.lat, coord.lon)}
-                  buffer={1}
-                  coneSize={0.05}
-                />
-              );
-            }
-            return null;
-          })}
+          <Stars count={1000} />
         </Suspense>
         <CameraControls />
       </Canvas>

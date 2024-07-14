@@ -49,17 +49,6 @@ export default function Home() {
     ]);
   }, [setPlayers]);
 
-  const handleStartGame = () => {
-    setIsGameStarted(true);
-    setIsTurn(true);
-    setCurrentPlayer({ id: '1', name: 'Player 1', color: '#ff0000' });
-  };
-
-  const handleEndTurn = () => {
-    setIsTurn(false);
-    nextTurn();
-  };
-
   if (!gameId) {
     return null; // or a loading indicator
   }
@@ -71,12 +60,6 @@ export default function Home() {
       <ResourceBar />
       <ThreeScene 
         populationMarkerData={populationMarkerData}
-      />
-      <GamePhaseButtons 
-        isGameStarted={isGameStarted}
-        isTurn={isTurn}
-        onStartGame={handleStartGame}
-        onEndTurn={handleEndTurn}
       />
     </main>
   );
