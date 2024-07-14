@@ -41,14 +41,13 @@ const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
   return (
     <ContextMenu>
       <ContextMenuTrigger>
-      <div style={{
+      <div className="population-marker" style={{
   fontSize: '12px',
   color: 'white',
   background: 'rgba(0,0,0,0.5)',
   padding: '2px 5px',
   borderRadius: '3px',
   cursor: 'context-menu',
-  zIndex: 1, // Add this line
 }}>
   {population}
 </div>
