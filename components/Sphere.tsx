@@ -27,7 +27,7 @@ const Sphere: React.FC<SphereProps> = ({
     return new THREE.MeshBasicMaterial({ color: 'rgba(50, 50, 50, 0.7)', transparent: true, opacity: 0.7, side: THREE.DoubleSide });
   }, []);
 
-  const latLonToVector3 = useCallback((lat: number, lon: number, radius: number = 0.01) => {
+  const latLonToVector3 = useCallback((lat: number, lon: number, radius: number = 0.015) => {
     const phi = (90 - lat) * (Math.PI / 180);
     const theta = (lon + 180) * (Math.PI / 180);
     const x = -(radius * Math.sin(phi) * Math.cos(theta));
@@ -45,7 +45,7 @@ const Sphere: React.FC<SphereProps> = ({
     if (intersects.length > 0) {
       const clickedPoint = intersects[0].point;
       const clickedCoord = coordinates.find(coord => {
-        const coordVector = latLonToVector3(coord.lat, coord.lon);
+        const coordVector = latLonToVector3(coord.lat, coord.lon, 0.01);
         return coordVector.distanceTo(clickedPoint) < 0.005;
       });
       if (clickedCoord) {
@@ -75,7 +75,7 @@ const Sphere: React.FC<SphereProps> = ({
         <sphereGeometry args={[0.01, 32, 16]} />
       </mesh>
       {coordinates.map((coord, index) => {
-        const spherePosition = latLonToVector3(coord.lat, coord.lon);
+        const spherePosition = latLonToVector3(coord.lat, coord.lon, 0.01);
         const diskPosition = spherePosition.clone().normalize().multiplyScalar(0.015);
         const diskRotation = new THREE.Euler().setFromVector3(diskPosition);
         
