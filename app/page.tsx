@@ -80,7 +80,7 @@ const HomeContent = () => {
   }, [ethersProvider]);
 
   useEffect(() => {
-    if (contract && signer) {
+    if (contract && signer && reencrypt) {
       reencrypt();
     }
   }, [contract, signer, reencrypt]);
@@ -103,7 +103,11 @@ const HomeContent = () => {
       }
       console.log("Public Key:", token.publicKey);
   
-      // Make sure currentGameID is set correctly before this point
+      if (currentGameID === undefined) {
+        console.error('Current game ID is undefined');
+        return;
+      }
+
       const encryptedBalance = await contract.viewBalance(
         currentGameID,
         token.publicKey,
