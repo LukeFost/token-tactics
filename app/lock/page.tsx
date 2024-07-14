@@ -26,6 +26,9 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const web3Modal = new Web3Modal(web3ModalConfig);
 
   useEffect(() => {
