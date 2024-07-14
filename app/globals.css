@@ -92,3 +92,15 @@ html, body {
 #__next {
   height: 100%;
 }
+
+.population-marker {
+  z-index: 1;
+}
+
+:root {
+  --privy-z-index: 9999;
+}
+
+.privy-modal {
+  z-index: 9999 !important;
+}

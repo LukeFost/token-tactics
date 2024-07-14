@@ -1,105 +1,41 @@
 // Sphere.tsx
 "use client";
-import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import { ThreeEvent, useLoader, useThree } from '@react-three/fiber';
+import React, { useRef, useMemo, useCallback } from 'react';
+import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { generateCustomMapTexture } from './CustomMap';
-import { Cell } from './CustomMap';
-import { DDSLoader } from 'three-stdlib';
-
-// Register the DDS loader
-THREE.DefaultLoadingManager.addHandler(/\.dds$/i, new DDSLoader() as any);
+import PopulationMarker from './PopulationMarker';
+import { PopulationMarkerData } from './types';
 
 interface SphereProps {
   position: [number, number, number];
-  onCellClick: (cell: Cell) => void;
-  initializeAllTerritories: (cells: Cell[]) => void;
+  clickPosition: THREE.Vector2 | null;
+  coordinates: Array<{ lat: number, lon: number, population: number }>;
+  updateActiveMarker: (marker: { lat: number, lon: number, population: number } | null) => void;
+  onDeploy: (cityName: string, amount: number) => void;
+  onMove: (cityName: string, amount: number) => void;
 }
 
-const Sphere: React.FC<SphereProps> = ({ position, onCellClick, initializeAllTerritories }) => {
+const Sphere: React.FC<SphereProps> = ({ 
+  position, clickPosition, coordinates, 
+  updateActiveMarker,
+onDeploy, onMove }) => {
   const meshRef = useRef<THREE.Mesh>(null);
-  const [baseTexture, setBaseTexture] = useState<THREE.Texture | null>(null);
-  const [handleClickCell, setHandleClickCell] = useState<((uv: THREE.Vector2) => void) | null>(null);
-  const [isTextureReady, setIsTextureReady] = useState(false);
+  const cloudRef = useRef<THREE.Mesh>(null);
+  const { camera } = useThree();
 
-  const { gl } = useThree();
-
-  const [normalMap, setNormalMap] = useState<THREE.Texture | null>(null);
-  const [worldTexture, setWorldTexture] = useState<THREE.Texture | null>(null);
-  
-  useEffect(() => {
-    new THREE.TextureLoader().load('/world.png', setWorldTexture);
-  }, []);
-
-  useEffect(() => {
-    const loader = new DDSLoader();
-    loader.load('/worldNormalMap.dds', 
-      (texture) => {
-        setNormalMap(texture);
-      },
-      undefined,
-      (error) => {
-        console.error('Error loading DDS texture:', error);
-        // Fallback to PNG if DDS fails
-        new THREE.TextureLoader().load('/worldNormalMap.png', setNormalMap);
-      }
-    );
-  }, []);
-
-  const roughnessMap = useLoader(THREE.TextureLoader, '/worldSpec.png');
-
-  const generateTexture = useCallback(() => {
-    console.log('Generating custom map texture');
-    generateCustomMapTexture(
-      2048,
-      1024,
-      onCellClick,
-      (newTexture, handleClick, getCells) => {
-        console.log('Custom map texture generated');
-        setBaseTexture(newTexture);
-        setHandleClickCell(() => handleClick);
-        setIsTextureReady(true);
-        const cells = getCells();
-        console.log('Total cells:', cells.length);
-        
-        if (!isTextureReady) {
-          initializeAllTerritories(cells.map(cell => ({
-            ...cell,
-            id: `Cell-${Math.round(cell.x)}-${Math.round(cell.y)}`
-          })));
-        }
-      }
-    );
-  }, [onCellClick, initializeAllTerritories, isTextureReady]);
-
-  useEffect(() => {
-    if (!isTextureReady) {
-      generateTexture();
-    }
-  }, [generateTexture, isTextureReady]);
-
-  const handleClick = useCallback((event: ThreeEvent<MouseEvent>) => {
-    event.stopPropagation();
-    if (handleClickCell && event.uv) {
-      console.log('Calling handleClickCell with UV:', event.uv);
-      handleClickCell(event.uv);
-    } else {
-      console.log('handleClickCell is not available or event.uv is undefined');
-    }
-  }, [handleClickCell]);
-
+  const [dayMap, normalMap, specularMap, cloudMap] = useLoader(THREE.TextureLoader, [
+    '/2k_earth_daymap.jpg',
+    '/2k_earth_normal_map.tif',
+    '/2k_earth_specular_map.tif',
+    '/2k_earth_clouds.jpg'
+  ]);
 
   const customShaderMaterial = useMemo(() => {
-    if (!worldTexture || !normalMap || !roughnessMap || !baseTexture) return null;
-
     return new THREE.ShaderMaterial({
       uniforms: {
-        baseTexture: { value: baseTexture },
-        worldTexture: { value: worldTexture },
+        dayMap: { value: dayMap },
         normalMap: { value: normalMap },
-        roughnessMap: { value: roughnessMap },
-        oceanColor: { value: new THREE.Color(0xADD8E6) }, // Light blue color
-        landColor: { value: new THREE.Color(0x228B22) }, // Keep the existing land color
+        specularMap: { value: specularMap },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -111,47 +47,90 @@ const Sphere: React.FC<SphereProps> = ({ position, onCellClick, initializeAllTer
         }
       `,
       fragmentShader: `
-        uniform sampler2D baseTexture;
-        uniform sampler2D worldTexture;
+        uniform sampler2D dayMap;
         uniform sampler2D normalMap;
-        uniform sampler2D roughnessMap;
-        uniform vec3 oceanColor;
-        uniform vec3 landColor;
+        uniform sampler2D specularMap;
         varying vec2 vUv;
         varying vec3 vNormal;
         void main() {
-          vec4 worldColor = texture2D(worldTexture, vUv);
-          vec4 baseColor = texture2D(baseTexture, vUv);
+          vec4 dayColor = texture2D(dayMap, vUv);
           vec3 normal = texture2D(normalMap, vUv).rgb * 2.0 - 1.0;
-          float roughness = texture2D(roughnessMap, vUv).r;
+          float specular = texture2D(specularMap, vUv).r;
           
-          vec3 finalColor = mix(oceanColor, landColor, worldColor.r);
-          finalColor = mix(finalColor, baseColor.rgb, baseColor.a);
+          vec3 light = normalize(vec3(1.0, 1.0, 1.0));
+          float diffuse = max(dot(normal, light), 0.0);
+          float spec = pow(max(dot(reflect(-light, normal), vec3(0.0, 0.0, 1.0)), 0.0), 32.0) * specular;
           
-          // Add some shading based on the normal
-          float shading = dot(normal, vec3(0.5, 0.5, 1.0)) * 0.5 + 0.5;
-          finalColor *= shading;
-
+          vec3 finalColor = dayColor.rgb * (diffuse + 0.2) + vec3(spec);
           gl_FragColor = vec4(finalColor, 1.0);
         }
       `,
     });
-  }, [worldTexture, normalMap, roughnessMap, baseTexture]);
+  }, [dayMap, normalMap, specularMap]);
 
+  const cloudMaterial = useMemo(() => {
+    return new THREE.MeshPhongMaterial({
+      map: cloudMap,
+      transparent: true,
+      opacity: 0.2,
+    });
+  }, [cloudMap]);
 
-  if (!isTextureReady || !customShaderMaterial) {
-    return null;
-  }
+  const latLonToVector3 = (lat: number, lon: number, radius: number = 1) => {
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+    const x = -(radius * Math.sin(phi) * Math.cos(theta));
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+    const y = radius * Math.cos(phi);
+    return new THREE.Vector3(x, y, z);
+  };
+
+  const populationMarkerRefs = useRef<(THREE.Mesh | null)[]>([]);
+
+  const handleRightClick = useCallback((event: THREE.Intersection) => {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(clickPosition!, camera);
+  
+    const intersects = raycaster.intersectObjects(populationMarkerRefs.current.filter(Boolean) as THREE.Object3D[]);
+  
+    if (intersects.length > 0) {
+      const clickedMarkerIndex = populationMarkerRefs.current.indexOf(intersects[0].object as THREE.Mesh);
+      const clickedMarker = coordinates[clickedMarkerIndex];
+      updateActiveMarker(clickedMarker);
+    }
+    // Remove the else clause that sets the active marker to null
+  }, [coordinates, updateActiveMarker, camera, clickPosition]);
+  
+  useFrame((state, delta) => {
+    if (cloudRef.current) {
+      cloudRef.current.rotation.y += delta * 0.1;
+    }
+  
+    if (meshRef.current && clickPosition) {
+      handleRightClick({ point: new THREE.Vector3() }); // Dummy intersection object
+    }
+  });
 
   return (
-    <mesh 
-    ref={meshRef} 
-    position={position} 
-    onClick={handleClick} 
-    material={customShaderMaterial}
-  >
-    <sphereGeometry args={[1, 64, 32]} />
-  </mesh>
+    <group position={position}>
+      <mesh ref={meshRef} material={customShaderMaterial}>
+        <sphereGeometry args={[1, 64, 32]} />
+      </mesh>
+      <mesh ref={cloudRef} material={cloudMaterial}>
+        <sphereGeometry args={[1.01, 64, 32]} />
+      </mesh>
+      {coordinates.map((coord, index) => (
+        <PopulationMarker
+          key={index}
+          position={latLonToVector3(coord.lat, coord.lon, 1.02)}
+          population={coord.population}
+          cityName={coord.cityName}
+          onDeploy={(amount) => onDeploy(coord.cityName, amount)}
+          onMove={(amount) => onMove(coord.cityName, amount)}
+          ref={(el) => (populationMarkerRefs.current[index] = el)}
+        />
+      ))}
+    </group>
   );
 };
 

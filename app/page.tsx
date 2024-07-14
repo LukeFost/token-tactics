@@ -1,30 +1,32 @@
 // page.tsx
 "use client"
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import ThreeScene from "@/components/ThreeScene";
 import GamePhaseButtons from "@/components/GamePhaseButtons";
 import { LeftDrawer } from "@/components/LeftDrawer";
 import { RightDrawer } from "@/components/RightDrawer";
 import { GameProvider, useGame } from '@/contexts/GameContext';
-import { Cell } from '../components/CustomMap';
-import { Territory } from '../components/TerritoryTable';
+
+
+// Define the PopulationMarkerData interface
+interface PopulationMarkerData {
+  lat: number;
+  lon: number;
+  population: number;
+  cityName: string;
+  connections: string[];
+}
 
 const HomeContent = () => {
   const { handleCellClick, setPlayers, setAllTerritories } = useGame();
-
-  const memoizedHandleCellClick = useCallback((cell: Cell) => {
-    handleCellClick(cell);
-  }, [handleCellClick]);
-
-  const initializeAllTerritories = useCallback((cells: Cell[]) => {
-    const territories = cells.map(cell => ({
-      id: `Cell-${Math.round(cell.x)}-${Math.round(cell.y)}`,
-      name: `Cell-${Math.round(cell.x)}-${Math.round(cell.y)}`,
-      owner: null,
-      turnCaptured: 0,
-    }));
-    setAllTerritories(territories);
-  }, [setAllTerritories]);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isTurn, setIsTurn] = useState(false);
+  const [populationMarkerData, setPopulationMarkerData] = useState<PopulationMarkerData[]>([
+    { lat: 42.16, lon: -21.91, population: 1000, cityName: 'Phoenix', connections: ['City2', 'City3'] },
+    { lat: 65, lon: 100, population: 500, cityName: 'City2', connections: ['Phoenix', 'City4'] },
+    { lat: 90, lon: 130, population: 750, cityName: 'City3', connections: ['Phoenix', 'City4'] },
+    { lat: 45, lon: 145, population: 250, cityName: 'City4', connections: ['City2', 'City3'] },
+  ]);
 
   useEffect(() => {
     // Initialize players
@@ -33,15 +35,39 @@ const HomeContent = () => {
     ]);
   }, [setPlayers]);
 
+  const handleStartGame = () => {
+    setIsGameStarted(true);
+    setIsTurn(true);
+  };
+
+  const handleEndTurn = () => {
+    setIsTurn(false);
+    // Add logic to switch to next player's turn
+  };
+
+  const handleBuy = () => {
+    // Add buy logic
+  };
+
+  const handleCards = () => {
+    // Add cards logic
+  };
+
   return (
     <main className="min-h-screen bg-gray-100 overflow-hidden">
       <LeftDrawer />
       <RightDrawer />
       <ThreeScene 
-        onCellClick={memoizedHandleCellClick} 
-        initializeAllTerritories={initializeAllTerritories} 
+        populationMarkerData={populationMarkerData}
       />
-      <GamePhaseButtons />
+      <GamePhaseButtons 
+        isGameStarted={isGameStarted}
+        isTurn={isTurn}
+        onStartGame={handleStartGame}
+        onEndTurn={handleEndTurn}
+        onBuy={handleBuy}
+        onCards={handleCards}
+      />
     </main>
   );
 };

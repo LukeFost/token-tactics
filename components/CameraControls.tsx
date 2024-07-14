@@ -22,7 +22,7 @@ const CameraControls = () => {
       zoomSpeed={0.5}
       enablePan={true}
       panSpeed={0.5}
-      minDistance={2}
+      minDistance={1.5}
       maxDistance={10}
     />
   );
