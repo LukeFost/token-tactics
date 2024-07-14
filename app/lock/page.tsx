@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { ethers } from 'ethers';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
+import ConnectButton from '@/components/ConnectButton';
+import { Web3Modal } from '@/context/web3modal';
 
 interface Game {
   id: string;
@@ -17,9 +18,8 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { isConnected, address } = useAccount();
+  const web3Modal = Web3Modal();
 
   useEffect(() => {
     if (isConnected && address) {
@@ -34,29 +34,12 @@ const LockScreen: React.FC = () => {
       router.push('/');
     } else {
       // Reset all state if game ID is empty
-      setIsConnected(false);
+      setIsSignedIn(false);
       setUserId(null);
       setGames([]);
     }
   }, [gameId, router]);
 
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        // Request account access
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        setAddress(address);
-        setIsConnected(true);
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-      }
-    } else {
-      console.log('Please install MetaMask!');
-    }
-  };
 
   const handleEnterGame = (selectedGameId: string) => {
     setGameId(selectedGameId);
@@ -89,11 +72,11 @@ const LockScreen: React.FC = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2">Game Logo</h1>
-          {isConnected && <p className="text-xl">User ID: {userId}</p>}
+          {isSignedIn && <p className="text-xl">User ID: {userId}</p>}
         </div>
         
         {!isConnected ? (
-          <Button onClick={connectWallet} className="w-full">Connect Wallet</Button>
+          <ConnectButton />
         ) : (
           <>
             <Button onClick={handleContinueGame} className="w-full mb-4">Continue Game</Button>
