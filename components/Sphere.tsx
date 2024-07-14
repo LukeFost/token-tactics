@@ -91,7 +91,7 @@ const Sphere: React.FC<SphereProps> = ({
 
   const populationMarkerRefs = useRef<(THREE.Mesh | null)[]>([]);
 
-  const handleRightClick = useCallback((event: THREE.Intersection) => {
+  const handleRightClick = useCallback((event: THREE.Intersection<THREE.Object3D<THREE.Event>>) => {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(clickPosition!, camera);
   
@@ -119,11 +119,18 @@ const Sphere: React.FC<SphereProps> = ({
     if (cloudRef.current) {
       cloudRef.current.rotation.y += delta * 0.1;
     }
-  
-    if (meshRef.current && clickPosition) {
-      handleRightClick({ point: new THREE.Vector3() }); // Dummy intersection object
-    }
   });
+
+  useEffect(() => {
+    if (meshRef.current && clickPosition) {
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(clickPosition, camera);
+      const intersects = raycaster.intersectObject(meshRef.current);
+      if (intersects.length > 0) {
+        handleRightClick(intersects[0]);
+      }
+    }
+  }, [clickPosition, camera, handleRightClick]);
 
   return (
     <>

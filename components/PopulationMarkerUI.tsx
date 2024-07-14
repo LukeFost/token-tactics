@@ -1,11 +1,5 @@
 // PopulationMarkerUI.tsx
 import React, { useState } from 'react';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -16,6 +10,7 @@ interface PopulationMarkerUIProps {
   population: number;
   onDeploy: (amount: number) => void;
   onMove: (amount: number) => void;
+  position: { x: number, y: number };
 }
 
 const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
@@ -23,6 +18,7 @@ const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
   population,
   onDeploy,
   onMove,
+  position,
 }) => {
   const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
@@ -39,24 +35,20 @@ const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-      <div className="population-marker" style={{
-  fontSize: '12px',
-  color: 'white',
-  background: 'rgba(0,0,0,0.5)',
-  padding: '2px 5px',
-  borderRadius: '3px',
-  cursor: 'context-menu',
-  zIndex: 10,
-}}>
-  {population}
-</div>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onSelect={() => setIsDeployDialogOpen(true)}>Deploy</ContextMenuItem>
-        <ContextMenuItem onSelect={() => setIsMoveDialogOpen(true)}>Move</ContextMenuItem>
-      </ContextMenuContent>
+    <div style={{
+      position: 'absolute',
+      left: `${position.x}px`,
+      top: `${position.y}px`,
+      zIndex: 1000,
+      background: 'white',
+      padding: '10px',
+      borderRadius: '5px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    }}>
+      <h3>{cityName}</h3>
+      <p>Population: {population}</p>
+      <Button onClick={() => setIsDeployDialogOpen(true)}>Deploy</Button>
+      <Button onClick={() => setIsMoveDialogOpen(true)}>Move</Button>
 
       <Dialog open={isDeployDialogOpen} onOpenChange={setIsDeployDialogOpen}>
         <DialogContent>
@@ -103,7 +95,7 @@ const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </ContextMenu>
+    </div>
   );
 };
 
