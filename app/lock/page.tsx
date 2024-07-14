@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { Web3Modal } from '../../context/web3modal';
+import { Web3Modal } from '@web3modal/react';
+import { useWeb3Modal } from '@web3modal/react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
@@ -18,15 +19,42 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const web3Modal = Web3Modal();
+  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const { isOpen, open, close } = useWeb3Modal();
 
   useEffect(() => {
-    if (isConnected && address) {
-      setUserId(address);
-    } else {
-      setUserId(null);
+    const checkConnection = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          setIsConnected(true);
+          setAddress(accounts[0]);
+          setUserId(accounts[0]);
+          setIsSignedIn(true);
+        } else {
+          setIsConnected(false);
+          setAddress(null);
+          setUserId(null);
+          setIsSignedIn(false);
+        }
+      }
+    };
+
+    checkConnection();
+
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', checkConnection);
     }
-  }, [isConnected, address]);
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', checkConnection);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (gameId) {
