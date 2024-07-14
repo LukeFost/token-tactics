@@ -159,25 +159,57 @@ const HomeContent = () => {
     // Add logic to switch to next player's turn
   };
 
-  const handleBuy = async () => {
-    console.log('Attempting to buy');
+  const handleMint = async () => {
+    console.log('Attempting to mint');
     if (contract && signer) {
       try {
         setIsLoading(true);
         setError(null);
-        // Example buy logic (replace with actual logic when implemented)
-        const tx = await contract.buy(currentGameID);
+      
+        const instance = await getInstance();
+        const amount = 100; // Example amount
+        const encrypted = instance.encrypt32(amount);
+        const encryptedData = toHexString(encrypted);
+
+        const tx = await contract.mint("0x" + encryptedData);
         await tx.wait();
-        console.log('Buy transaction successful');
+        console.log('Mint transaction successful');
         setIsLoading(false);
       } catch (error) {
-        console.error('Error in buy transaction:', error);
-        setError('Failed to complete buy transaction. Please try again.');
+        console.error('Error in mint transaction:', error);
+        setError('Failed to complete mint transaction. Please try again.');
         setIsLoading(false);
       }
     } else {
-      console.log('Contract or signer not available for buy transaction');
-      setError('Unable to perform buy transaction. Please ensure you are connected to Ethereum.');
+      console.log('Contract or signer not available for mint transaction');
+      setError('Unable to perform mint transaction. Please ensure you are connected to Ethereum.');
+    }
+  };
+
+  const handleDecryptBalance = async () => {
+    console.log('Attempting to decrypt balance');
+    if (contract && signer) {
+      try {
+        setIsLoading(true);
+        setError(null);
+      
+        const instance = await getInstance();
+        const { publicKey, signature } = await getTokenSignature(contract.address, await signer.getAddress(), signer);
+      
+        const ciphertext = await contract.balanceOf(publicKey, signature);
+        const userBalance = instance.decrypt(contract.address, ciphertext);
+      
+        console.log('Decrypted balance:', userBalance);
+        setUserBalance(String(userBalance));
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error decrypting balance:', error);
+        setError('Failed to decrypt balance. Please try again.');
+        setIsLoading(false);
+      }
+    } else {
+      console.log('Contract or signer not available for balance decryption');
+      setError('Unable to decrypt balance. Please ensure you are connected to Ethereum.');
     }
   };
   
