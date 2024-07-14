@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,49 @@ const PlayerManagementButton: React.FC = () => {
     setEditingPlayer(null);
   }, [setPlayers]);
 
+  const handleInputChange = useCallback((field: 'name' | 'color', value: string) => {
+    setEditingPlayer(prev => prev ? { ...prev, [field]: value } : null);
+  }, []);
+
+  const renderEditingContent = useMemo(() => (
+    <div>
+      <Button variant="ghost" onClick={() => setEditingPlayer(null)}>
+        <ChevronLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
+      <Input
+        value={editingPlayer?.name || ''}
+        onChange={(e) => handleInputChange('name', e.target.value)}
+        className="mt-4"
+        placeholder="Player Name"
+      />
+      <Input
+        value={editingPlayer?.color || ''}
+        onChange={(e) => handleInputChange('color', e.target.value)}
+        className="mt-2"
+        placeholder="RGBA Color (e.g., rgba(255, 0, 0, 1))"
+      />
+      <Button onClick={() => editingPlayer && handleSaveEdit(editingPlayer)} className="mt-4">
+        Save Changes
+      </Button>
+    </div>
+  ), [editingPlayer, handleInputChange, handleSaveEdit]);
+
+  const renderPlayerList = useMemo(() => (
+    <div>
+      {players.map(player => (
+        <div key={player.id} className="flex items-center justify-between mt-2">
+          <span>{player.name}</span>
+          <div>
+            <Button variant="ghost" onClick={() => handleEditPlayer(player)}>Edit</Button>
+            <Button variant="ghost" onClick={() => handleRemovePlayer(player.id)}>Remove</Button>
+          </div>
+        </div>
+      ))}
+      <Button onClick={handleAddPlayer} className="mt-4">Add Player</Button>
+    </div>
+  ), [players, handleEditPlayer, handleRemovePlayer, handleAddPlayer]);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -47,42 +90,7 @@ const PlayerManagementButton: React.FC = () => {
         <DialogHeader>
           <DialogTitle>Player Management</DialogTitle>
         </DialogHeader>
-        {editingPlayer ? (
-          <div>
-            <Button variant="ghost" onClick={() => setEditingPlayer(null)}>
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <Input
-              value={editingPlayer.name}
-              onChange={(e) => setEditingPlayer(prev => prev ? { ...prev, name: e.target.value } : null)}
-              className="mt-4"
-              placeholder="Player Name"
-            />
-            <Input
-              value={editingPlayer.color}
-              onChange={(e) => setEditingPlayer(prev => prev ? { ...prev, color: e.target.value } : null)}
-              className="mt-2"
-              placeholder="RGBA Color (e.g., rgba(255, 0, 0, 1))"
-            />
-            <Button onClick={() => editingPlayer && handleSaveEdit(editingPlayer)} className="mt-4">
-              Save Changes
-            </Button>
-          </div>
-        ) : (
-          <div>
-            {players.map(player => (
-              <div key={player.id} className="flex items-center justify-between mt-2">
-                <span>{player.name}</span>
-                <div>
-                  <Button variant="ghost" onClick={() => handleEditPlayer(player)}>Edit</Button>
-                  <Button variant="ghost" onClick={() => handleRemovePlayer(player.id)}>Remove</Button>
-                </div>
-              </div>
-            ))}
-            <Button onClick={handleAddPlayer} className="mt-4">Add Player</Button>
-          </div>
-        )}
+        {editingPlayer ? renderEditingContent : renderPlayerList}
       </DialogContent>
     </Dialog>
   );
