@@ -12,13 +12,16 @@ export const currentPlayerAtom = atom<Player | null>(null);
 export const ownedTerritoriesAtom = atom<Territory[]>([]);
 export const allTerritoriesAtom = atom<Territory[]>([]);
 export const currentTurnAtom = atom<number>(1);
+export const isGameStartedAtom = atom<boolean>(false);
+export const isTurnAtom = atom<boolean>(false);
 
 export const nextTurnAtom = atom(
   null,
   (get, set) => {
     const players = get(playersAtom);
     const currentPlayer = get(currentPlayerAtom);
-    const nextPlayerIndex = (players.indexOf(currentPlayer!) + 1) % players.length;
+    if (!currentPlayer) return;
+    const nextPlayerIndex = (players.indexOf(currentPlayer) + 1) % players.length;
     set(currentPlayerAtom, players[nextPlayerIndex]);
     set(currentTurnAtom, (prev) => prev + 1);
   }
