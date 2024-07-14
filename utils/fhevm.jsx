@@ -1,6 +1,6 @@
 // // fhevm.jsx
 import { BrowserProvider, AbiCoder } from "ethers";
-import { initFhevm, createInstance } from 'fhevmjs';
+import { initFhevm, createInstance } from 'fhevmjs/web';
 
 let provider;
 let instance;

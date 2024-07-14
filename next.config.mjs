@@ -9,7 +9,11 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      "tfhe_bg.wasm": path.resolve(__dirname, 'node_modules/tfhe/tfhe_bg.wasm'),
+      "tfhe_bg.wasm": require.resolve("tfhe/tfhe_bg.wasm"),
+      buffer: require.resolve('buffer/'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      path: require.resolve('path-browserify'),
     };
     return config;
   },
