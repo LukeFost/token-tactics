@@ -94,7 +94,7 @@ html, body {
 }
 
 .population-marker {
-  z-index: 1;
+  z-index: 10;
 }
 
 :root {
@@ -103,4 +103,12 @@ html, body {
 
 .privy-modal {
   z-index: 9999 !important;
+}
+
+/* Ensure modals are above population markers */
+.dialog-overlay,
+.dialog-content,
+.sheet-overlay,
+.sheet-content {
+  z-index: 50 !important;
 }
