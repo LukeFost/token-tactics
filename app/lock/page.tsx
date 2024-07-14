@@ -2,25 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { Web3Modal } from '../../context/web3modal';
+import { ethers } from 'ethers';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
-import ConnectButton from '@/components/ConnectButton';
 
 interface Game {
   id: string;
   name: string;
   owner: string;
 }
-
-const web3ModalConfig = {
-  network: "inco", // or the network you're using
-  cacheProvider: true,
-  providerOptions: {
-    // Configure the provider options as needed
-  }
-};
 
 const LockScreen: React.FC = () => {
   const router = useRouter();
@@ -29,7 +20,6 @@ const LockScreen: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const web3Modal = new Web3Modal(web3ModalConfig);
 
   useEffect(() => {
     if (isConnected && address) {
@@ -50,6 +40,23 @@ const LockScreen: React.FC = () => {
     }
   }, [gameId, router]);
 
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        // Request account access
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+        setAddress(address);
+        setIsConnected(true);
+      } catch (error) {
+        console.error("Failed to connect wallet:", error);
+      }
+    } else {
+      console.log('Please install MetaMask!');
+    }
+  };
 
   const handleEnterGame = (selectedGameId: string) => {
     setGameId(selectedGameId);
@@ -86,7 +93,7 @@ const LockScreen: React.FC = () => {
         </div>
         
         {!isConnected ? (
-          <ConnectButton />
+          <Button onClick={connectWallet} className="w-full">Connect Wallet</Button>
         ) : (
           <>
             <Button onClick={handleContinueGame} className="w-full mb-4">Continue Game</Button>
