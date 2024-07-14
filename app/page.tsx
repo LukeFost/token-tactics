@@ -66,7 +66,6 @@ const HomeContent = () => {
           const contract = new ethers.Contract(riskAddress, riskABI, signer);
           setContract(contract);
           console.log('Ethers initialized successfully');
-          await reencrypt();
         } catch (error) {
           console.error('Failed to initialize Ethers:', error);
           setError('Failed to initialize Ethereum connection. Please make sure MetaMask is installed and connected.');
@@ -78,22 +77,24 @@ const HomeContent = () => {
     };
 
     initEthers();
-  }, [ethersProvider, reencrypt]);
+  }, [ethersProvider]);
+
+  useEffect(() => {
+    if (contract && signer) {
+      reencrypt();
+    }
+  }, [contract, signer, reencrypt]);
 
   const reencrypt = useCallback(async () => {
     console.log("Reencrypting...");
-    try {
-      if (!ethersProvider) {
-        console.error('Ethers provider is not available');
-        return;
-      }
-  
-      const signer = await ethersProvider.getSigner();
-      console.log(signer, 'SIGNER')
-      const instance = await createInstance(riskAddress, ethersProvider, signer) as FhevmInstance
-      const contract = new ethers.Contract(riskAddress, riskABI, signer);
+    if (!contract || !signer || !ethersProvider) {
+      console.error('Contract, signer, or provider not available');
+      return;
+    }
 
-      console.log(instance, 'INSTANCE')
+    try {
+      const instance = await createInstance(riskAddress, ethersProvider, signer) as FhevmInstance;
+      console.log(instance, 'INSTANCE');
       
       const token = instance.getPublicKey(riskAddress);
       if (!token || typeof token !== 'object' || !token.publicKey) {
@@ -119,7 +120,7 @@ const HomeContent = () => {
       console.error("Error in reencrypt:", e);
       setError('Failed to reencrypt and get balance. Please try again.');
     }
-  }, [currentGameID, ethersProvider, setUserBalance, setError]);
+  }, [currentGameID, contract, signer, ethersProvider, setUserBalance, setError]);
 
 
   useEffect(() => {
