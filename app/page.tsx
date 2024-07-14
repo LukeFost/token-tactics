@@ -79,12 +79,6 @@ const HomeContent = () => {
     initEthers();
   }, [ethersProvider]);
 
-  useEffect(() => {
-    if (contract && signer && reencrypt) {
-      reencrypt();
-    }
-  }, [contract, signer, reencrypt]);
-
   const reencrypt = useCallback(async () => {
     console.log("Reencrypting...");
     if (!contract || !signer || !ethersProvider) {
@@ -125,6 +119,12 @@ const HomeContent = () => {
       setError('Failed to reencrypt and get balance. Please try again.');
     }
   }, [currentGameID, contract, signer, ethersProvider, setUserBalance, setError]);
+
+  useEffect(() => {
+    if (contract && signer && reencrypt) {
+      reencrypt();
+    }
+  }, [contract, signer, reencrypt]);
 
 
   useEffect(() => {
