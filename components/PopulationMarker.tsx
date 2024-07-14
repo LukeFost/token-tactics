@@ -10,24 +10,41 @@ interface PopulationMarkerProps {
   cityName: string;
   onDeploy: (amount: number) => void;
   onMove: (amount: number) => void;
+  valueDisplay: 1 | 2;
 }
 
 const PopulationMarker = forwardRef<THREE.Mesh, PopulationMarkerProps>(
-  ({ position, population, cityName, onDeploy, onMove }, ref) => {
+  ({ position, population, cityName, onDeploy, onMove, valueDisplay }, ref) => {
     return (
       <group position={position}>
         <mesh ref={ref}>
           <sphereGeometry args={[0.02, 16, 16]} />
           <meshBasicMaterial color="red" />
         </mesh>
-        <Html style={{ zIndex: -1 }}>
-  <PopulationMarkerUI
-    cityName={cityName}
-    population={population}
-    onDeploy={onDeploy}
-    onMove={onMove}
-  />
-</Html>
+        {valueDisplay === 1 && (
+          <Html style={{ zIndex: -1 }}>
+            <PopulationMarkerUI
+              cityName={cityName}
+              population={population}
+              onDeploy={onDeploy}
+              onMove={onMove}
+            />
+          </Html>
+        )}
+        {valueDisplay === 2 && (
+          <Html>
+            <div style={{
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              padding: '5px',
+              borderRadius: '5px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}>
+              {population}
+            </div>
+          </Html>
+        )}
       </group>
     );
   }

@@ -9,10 +9,11 @@ import { PopulationMarkerData } from './types';
 interface SphereProps {
   position: [number, number, number];
   clickPosition: THREE.Vector2 | null;
-  coordinates: Array<{ lat: number, lon: number, population: number }>;
+  coordinates: Array<{ lat: number, lon: number, population: number, cityName: string }>;
   updateActiveMarker: (marker: { lat: number, lon: number, population: number } | null) => void;
   onDeploy: (cityName: string, amount: number) => void;
   onMove: (cityName: string, amount: number) => void;
+  valueDisplay: 1 | 2;
 }
 
 const Sphere: React.FC<SphereProps> = ({ 
@@ -128,6 +129,7 @@ onDeploy, onMove }) => {
           onDeploy={(amount) => onDeploy(coord.cityName, amount)}
           onMove={(amount) => onMove(coord.cityName, amount)}
           ref={(el) => (populationMarkerRefs.current[index] = el)}
+          valueDisplay={props.valueDisplay}
         />
       ))}
     </group>

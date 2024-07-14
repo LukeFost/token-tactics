@@ -23,7 +23,7 @@ interface ThreeSceneProps {
   populationMarkerData: PopulationMarkerData[];
 }
 
-const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
+const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData, valueDisplay = 1 }) => {
   const [clickPosition, setClickPosition] = useState<THREE.Vector2 | null>(null);
   const [coordinates, setCoordinates] = useState<PopulationMarkerData[]>(populationMarkerData);
   const [activeMarker, setActiveMarker] = useState<PopulationMarkerData | null>(null);
@@ -85,6 +85,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ populationMarkerData }) => {
             updateActiveMarker={updateActiveMarker}
             onDeploy={handleDeploy}
             onMove={handleMove}
+            valueDisplay={valueDisplay}
           />
           <Stars count={10000} />
           {activeMarker && coordinates.map((coord, index) => {
