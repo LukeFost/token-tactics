@@ -104,3 +104,65 @@ export const handleCellClickAtom = atom(
     });
   }
 );
+
+export const goldBalanceAtom = atom(100); // Initial gold balance
+export const soldiersAtom = atom(0);
+export const populationAtom = atom(0);
+
+export interface Card {
+  id: string;
+  name: string;
+  description: string;
+  count: number;
+}
+
+export const cardsAtom = atom<Card[]>([
+  { id: '1', name: 'Attack', description: 'Increase attack power', count: 0 },
+  { id: '2', name: 'Defense', description: 'Increase defense', count: 0 },
+  { id: '3', name: 'Movement', description: 'Increase movement range', count: 0 },
+]);
+
+export const buyCardMultiplierAtom = atom(1);
+
+export const buyResourcesAtom = atom(
+  null,
+  (get, set, { type, amount }: { type: 'soldiers' | 'population', amount: number }) => {
+    const goldBalance = get(goldBalanceAtom);
+    if (goldBalance >= amount) {
+      set(goldBalanceAtom, goldBalance - amount);
+      set(type === 'soldiers' ? soldiersAtom : populationAtom, (prev) => prev + amount);
+    }
+  }
+);
+
+export const buyCardAtom = atom(
+  null,
+  (get, set) => {
+    const goldBalance = get(goldBalanceAtom);
+    const multiplier = get(buyCardMultiplierAtom);
+    const cardCost = 10 * multiplier;
+    if (goldBalance >= cardCost) {
+      set(goldBalanceAtom, goldBalance - cardCost);
+      set(cardsAtom, (prevCards) => {
+        const randomIndex = Math.floor(Math.random() * prevCards.length);
+        return prevCards.map((card, index) => 
+          index === randomIndex ? { ...card, count: card.count + multiplier } : card
+        );
+      });
+    }
+  }
+);
+
+export const useCardAtom = atom(
+  null,
+  (get, set, cardId: string) => {
+    set(cardsAtom, (prevCards) => 
+      prevCards.map(card => 
+        card.id === cardId && card.count > 0 
+          ? { ...card, count: card.count - 1 } 
+          : card
+      )
+    );
+    // Add logic for card effects here
+  }
+);
