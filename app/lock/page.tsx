@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { Web3Modal } from '../context/web3modal';
-import { useAccount } from 'wagmi';
+import { Web3Modal } from '../../context/web3modal';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
