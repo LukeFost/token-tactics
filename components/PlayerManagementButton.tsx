@@ -93,7 +93,7 @@ const PlayerManagementButton: React.FC = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <VisuallyHidden asChild>
+          <VisuallyHidden>
             <DialogTitle>Player Management</DialogTitle>
           </VisuallyHidden>
         </DialogHeader>
