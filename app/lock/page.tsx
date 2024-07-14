@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { useWeb3Modal } from '@web3modal/react';
+import { Web3Modal } from '../context/web3modal';
 import { useAccount } from 'wagmi';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,7 +20,7 @@ const LockScreen: React.FC = () => {
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
   const { isConnected, address } = useAccount();
-  const { isOpen } = useWeb3Modal();
+  const web3Modal = Web3Modal();
 
   useEffect(() => {
     if (isConnected && address) {
