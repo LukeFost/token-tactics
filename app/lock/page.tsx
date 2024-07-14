@@ -44,7 +44,7 @@ const LockScreen: React.FC = () => {
       router.push('/');
     } else {
       // Reset all state if game ID is empty
-      setIsSignedIn(false);
+      setIsConnected(false);
       setUserId(null);
       setGames([]);
     }
@@ -82,7 +82,7 @@ const LockScreen: React.FC = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2">Game Logo</h1>
-          {isSignedIn && <p className="text-xl">User ID: {userId}</p>}
+          {isConnected && <p className="text-xl">User ID: {userId}</p>}
         </div>
         
         {!isConnected ? (
