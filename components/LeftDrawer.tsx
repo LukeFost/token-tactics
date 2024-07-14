@@ -66,7 +66,9 @@ export const LeftDrawer: React.FC = () => {
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <DialogTitle>Left Drawer Content</DialogTitle>
+          <VisuallyHidden>
+            <DialogTitle>Left Drawer Content</DialogTitle>
+          </VisuallyHidden>
           <DialogDescription>
             This drawer contains game information and player management options.
           </DialogDescription>
