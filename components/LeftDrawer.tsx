@@ -14,7 +14,7 @@ import { ownedTerritoriesAtom, allTerritoriesAtom, currentPlayerAtom, currentTur
 export const LeftDrawer: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [ownedTerrit ories] = useAtom(ownedTerritoriesAtom);
+  const [ownedTerritories] = useAtom(ownedTerritoriesAtom);
   const [allTerritories] = useAtom(allTerritoriesAtom);
   const [currentPlayer] = useAtom(currentPlayerAtom);
   const [currentTurn] = useAtom(currentTurnAtom);
