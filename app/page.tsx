@@ -59,14 +59,14 @@ const HomeContent = () => {
       if (ethersProvider) {
         try {
           setProvider(ethersProvider);
-          const signer = ethersProvider.getSigner();
+          const signer = await ethersProvider.getSigner();
           setSigner(signer);
           const address = await signer.getAddress();
           setAddress(address);
           const contract = new ethers.Contract(riskAddress, riskABI, signer);
           setContract(contract);
           console.log('Ethers initialized successfully');
-          reencrypt()
+          await reencrypt();
         } catch (error) {
           console.error('Failed to initialize Ethers:', error);
           setError('Failed to initialize Ethereum connection. Please make sure MetaMask is installed and connected.');
@@ -78,7 +78,7 @@ const HomeContent = () => {
     };
 
     initEthers();
-  }, [ethersProvider]);
+  }, [ethersProvider, reencrypt]);
 
   const reencrypt = useCallback(async () => {
     console.log("Reencrypting...");
