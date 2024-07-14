@@ -6,6 +6,7 @@ import ThreeScene from "@/components/ThreeScene";
 import GamePhaseButtons from "@/components/GamePhaseButtons";
 import { LeftDrawer } from "@/components/LeftDrawer";
 import { RightDrawer } from "@/components/RightDrawer";
+import ResourceBar from "@/components/ResourceBar";
 import { playersAtom, handleCellClickAtom, isGameStartedAtom, isTurnAtom, currentPlayerAtom, nextTurnAtom } from '@/atoms/gameAtoms';
 
 // Define the PopulationMarkerData interface
@@ -54,6 +55,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-100 overflow-hidden">
       <LeftDrawer />
       <RightDrawer />
+      <ResourceBar />
       <ThreeScene 
         populationMarkerData={populationMarkerData}
       />
