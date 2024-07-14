@@ -1,9 +1,10 @@
 // Sphere.tsx
 "use client";
-import React, { useRef, useMemo, useCallback } from 'react';
+import React, { useRef, useMemo, useCallback, useState } from 'react';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import PopulationMarker from './PopulationMarker';
+import PopulationMarkerUI from './PopulationMarkerUI';
 import { PopulationMarkerData } from './types';
 
 interface SphereProps {
@@ -13,13 +14,14 @@ interface SphereProps {
   updateActiveMarker: (marker: { lat: number, lon: number, population: number } | null) => void;
   onDeploy: (cityName: string, amount: number) => void;
   onMove: (cityName: string, amount: number) => void;
-  valueDisplay: 1 | 2;
 }
 
 const Sphere: React.FC<SphereProps> = ({ 
   position, clickPosition, coordinates, 
-  updateActiveMarker, onDeploy, onMove, valueDisplay
+  updateActiveMarker, onDeploy, onMove
 }) => {
+  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number } | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<PopulationMarkerData | null>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
@@ -98,8 +100,18 @@ const Sphere: React.FC<SphereProps> = ({
       const clickedMarkerIndex = populationMarkerRefs.current.indexOf(intersects[0].object as THREE.Mesh);
       const clickedMarker = coordinates[clickedMarkerIndex];
       updateActiveMarker(clickedMarker);
+      setSelectedMarker(clickedMarker);
+      
+      // Convert 3D position to 2D screen coordinates
+      const vector = new THREE.Vector3().setFromMatrixPosition(intersects[0].object.matrixWorld);
+      vector.project(camera);
+      const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+      const y = (-(vector.y - 1) * 0.5) * window.innerHeight;
+      setContextMenuPosition({ x, y });
+    } else {
+      setContextMenuPosition(null);
+      setSelectedMarker(null);
     }
-    // Remove the else clause that sets the active marker to null
   }, [coordinates, updateActiveMarker, camera, clickPosition]);
   
   useFrame((state, delta) => {
@@ -113,26 +125,42 @@ const Sphere: React.FC<SphereProps> = ({
   });
 
   return (
-    <group position={position}>
-      <mesh ref={meshRef} material={customShaderMaterial}>
-        <sphereGeometry args={[1, 64, 32]} />
-      </mesh>
-      <mesh ref={cloudRef} material={cloudMaterial}>
-        <sphereGeometry args={[1.01, 64, 32]} />
-      </mesh>
-      {coordinates.map((coord, index) => (
-        <PopulationMarker
-          key={index}
-          position={latLonToVector3(coord.lat, coord.lon, 1.02)}
-          population={coord.population}
-          cityName={coord.cityName}
-          onDeploy={(amount) => onDeploy(coord.cityName, amount)}
-          onMove={(amount) => onMove(coord.cityName, amount)}
-          ref={(el) => (populationMarkerRefs.current[index] = el)}
-          valueDisplay={valueDisplay}
-        />
-      ))}
-    </group>
+    <>
+      <group position={position}>
+        <mesh ref={meshRef} material={customShaderMaterial}>
+          <sphereGeometry args={[1, 64, 32]} />
+        </mesh>
+        <mesh ref={cloudRef} material={cloudMaterial}>
+          <sphereGeometry args={[1.01, 64, 32]} />
+        </mesh>
+        {coordinates.map((coord, index) => (
+          <PopulationMarker
+            key={index}
+            position={latLonToVector3(coord.lat, coord.lon, 1.02)}
+            population={coord.population}
+            cityName={coord.cityName}
+            onDeploy={(amount) => onDeploy(coord.cityName, amount)}
+            onMove={(amount) => onMove(coord.cityName, amount)}
+            ref={(el) => (populationMarkerRefs.current[index] = el)}
+          />
+        ))}
+      </group>
+      {contextMenuPosition && selectedMarker && (
+        <Html style={{
+          position: 'absolute',
+          top: `${contextMenuPosition.y}px`,
+          left: `${contextMenuPosition.x}px`,
+          zIndex: 1000,
+        }}>
+          <PopulationMarkerUI
+            cityName={selectedMarker.cityName}
+            population={selectedMarker.population}
+            onDeploy={(amount) => onDeploy(selectedMarker.cityName, amount)}
+            onMove={(amount) => onMove(selectedMarker.cityName, amount)}
+          />
+        </Html>
+      )}
+    </>
   );
 };
 
