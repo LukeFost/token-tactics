@@ -110,5 +110,5 @@ html, body {
 .dialog-content,
 .sheet-overlay,
 .sheet-content {
-  z-index: 50 !important;
+  z-index: 1000 !important;
 }

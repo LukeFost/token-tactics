@@ -48,6 +48,7 @@ const PopulationMarkerUI: React.FC<PopulationMarkerUIProps> = ({
   padding: '2px 5px',
   borderRadius: '3px',
   cursor: 'context-menu',
+  zIndex: 10,
 }}>
   {population}
 </div>
