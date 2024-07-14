@@ -10,6 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
 import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Toggle } from "@/components/ui/toggle";
+import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
 
 interface GamePhaseButtonsProps {
   isGameStarted: boolean;
@@ -41,6 +45,13 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
   }
 
   const getCurrentPhaseText = () => {
+    if (!isGameStarted) {
+      return null;
+    }
+    return isTurn ? "Your Turn" : "Waiting...";
+  };
+
+  const currentPhaseText = getCurrentPhaseText();
     if (!isGameStarted) {
       return null;
     }
