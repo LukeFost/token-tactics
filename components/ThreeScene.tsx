@@ -88,9 +88,9 @@ const ThreeScene: React.FC<ThreeSceneProps & { valueDisplay?: 1 | 2 }> = ({ popu
             valueDisplay={valueDisplay}
           />
           <Stars count={10000} />
-          {activeMarker && coordinates.map((coord, index) => {
+          {activeMarker && coordinates && coordinates.length > 0 && coordinates.map((coord, index) => {
             const activeCity = coordinates.find(c => c.cityName === activeMarker.cityName);
-            if (activeCity && activeCity.connections.includes(coord.cityName)) {
+            if (activeCity && activeCity.connections && activeCity.connections.includes(coord.cityName)) {
               return (
                 <ArcingArrow
                   key={index}
