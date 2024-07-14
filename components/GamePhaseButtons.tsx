@@ -5,15 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
-import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Toggle } from "@/components/ui/toggle";
-import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Toggle } from "@/components/ui/toggle";
-import { goldBalanceAtom, soldiersAtom, populationAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom, playersAtom } from '@/atoms/gameAtoms';
+import { goldBalanceAtom, cardsAtom, buyCardMultiplierAtom, buyResourcesAtom, buyCardAtom, useCardAtom } from '@/atoms/gameAtoms';
 
 interface GamePhaseButtonsProps {
   isGameStarted: boolean;
@@ -38,20 +30,12 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
   const [buyCardMultiplier, setBuyCardMultiplier] = useAtom(buyCardMultiplierAtom);
   const [cards] = useAtom(cardsAtom);
   const [, useCard] = useAtom(useCardAtom);
-  const [players] = useAtom(playersAtom);
 
   if (!cards) {
-    return <div>Loading...</div>; // or any other loading indicator
+    return <div>Loading...</div>;
   }
 
   const getCurrentPhaseText = () => {
-    if (!isGameStarted) {
-      return null;
-    }
-    return isTurn ? "Your Turn" : "Waiting...";
-  };
-
-  const currentPhaseText = getCurrentPhaseText();
     if (!isGameStarted) {
       return null;
     }
