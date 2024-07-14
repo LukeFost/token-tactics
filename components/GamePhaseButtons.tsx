@@ -31,6 +31,7 @@ const GamePhaseButtons: React.FC<GamePhaseButtonsProps> = ({
   const [cards] = useAtom(cardsAtom);
   const [, useCard] = useAtom(useCardAtom);
   const [players] = useAtom(playersAtom);
+  const [players] = useAtom(playersAtom);
 
   const getCurrentPhaseText = () => {
     if (!isGameStarted) {
