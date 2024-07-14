@@ -18,8 +18,8 @@ interface SphereProps {
 
 const Sphere: React.FC<SphereProps> = ({ 
   position, clickPosition, coordinates, 
-  updateActiveMarker,
-onDeploy, onMove }) => {
+  updateActiveMarker, onDeploy, onMove, valueDisplay
+}) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
