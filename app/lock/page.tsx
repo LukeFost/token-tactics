@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
+import { useWeb3Modal } from '@web3modal/react';
+import { useAccount } from 'wagmi';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
+import ConnectButton from '@/components/ConnectButton';
 
 interface Game {
   id: string;
@@ -15,20 +18,17 @@ interface Game {
 const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
-  const [isSignedIn, setIsSignedIn] = useState(false);
   const [games, setGames] = useState<Game[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { isConnected, address } = useAccount();
+  const { isOpen } = useWeb3Modal();
 
   useEffect(() => {
-    // Check if user is signed in (replace with actual auth check)
-    const checkAuth = async () => {
-      // Simulating an async auth check
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSignedIn(true);
-      setUserId("user123"); // Replace with actual user ID
-    };
-    checkAuth();
-  }, []);
+    if (isConnected && address) {
+      setUserId(address);
+    } else {
+      setUserId(null);
+    }
+  }, [isConnected, address]);
 
   useEffect(() => {
     if (gameId) {
@@ -41,12 +41,6 @@ const LockScreen: React.FC = () => {
     }
   }, [gameId, router]);
 
-  const handleConnect = () => {
-    // Implement connection logic here
-    console.log("Connecting...");
-    setIsSignedIn(true);
-    setUserId("user123"); // Replace with actual user ID
-  };
 
   const handleEnterGame = (selectedGameId: string) => {
     setGameId(selectedGameId);
@@ -82,8 +76,8 @@ const LockScreen: React.FC = () => {
           {isSignedIn && <p className="text-xl">User ID: {userId}</p>}
         </div>
         
-        {!isSignedIn ? (
-          <Button onClick={handleConnect} className="w-full">Connect</Button>
+        {!isConnected ? (
+          <ConnectButton />
         ) : (
           <>
             <Button onClick={handleContinueGame} className="w-full mb-4">Continue Game</Button>
