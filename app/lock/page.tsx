@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
-import { Web3Modal } from '@web3modal/react';
-import { useWeb3Modal } from '@web3modal/react';
+import { Web3Modal } from '../../context/web3modal';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { gameIdAtom } from '@/atoms/gameAtoms';
@@ -15,46 +14,27 @@ interface Game {
   owner: string;
 }
 
+const web3ModalConfig = {
+  network: "mainnet", // or the network you're using
+  cacheProvider: true,
+  providerOptions: {
+    // Configure the provider options as needed
+  }
+};
+
 const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const { isOpen, open, close } = useWeb3Modal();
+  const web3Modal = new Web3Modal(web3ModalConfig);
 
   useEffect(() => {
-    const checkConnection = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setIsConnected(true);
-          setAddress(accounts[0]);
-          setUserId(accounts[0]);
-          setIsSignedIn(true);
-        } else {
-          setIsConnected(false);
-          setAddress(null);
-          setUserId(null);
-          setIsSignedIn(false);
-        }
-      }
-    };
-
-    checkConnection();
-
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', checkConnection);
+    if (isConnected && address) {
+      setUserId(address);
+    } else {
+      setUserId(null);
     }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', checkConnection);
-      }
-    };
-  }, []);
+  }, [isConnected, address]);
 
   useEffect(() => {
     if (gameId) {
