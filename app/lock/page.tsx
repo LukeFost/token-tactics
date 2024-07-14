@@ -18,8 +18,7 @@ const LockScreen: React.FC = () => {
   const router = useRouter();
   const [gameId, setGameId] = useAtom(gameIdAtom);
   const [games, setGames] = useState<Game[]>([]);
-  const { isConnected, address } = useAccount();
-  const web3Modal = Web3Modal();
+  const { isConnected, address, provider } = useWeb3Modal();
 
   useEffect(() => {
     if (isConnected && address) {
@@ -28,6 +27,20 @@ const LockScreen: React.FC = () => {
       setUserId(null);
     }
   }, [isConnected, address]);
+
+  const handleContinueGame = async () => {
+    if (!isConnected || !provider || !address) return;
+
+    try {
+      const signer = provider.getSigner();
+      const gameContract = new ethers.Contract(GameContractAddress, GameContractABI, signer);
+
+      await gameContract.continueGame(gameId);
+      setGameId(gameId);
+    } catch (error) {
+      console.error('Error continuing game:', error.toString());
+    }
+  };
 
   useEffect(() => {
     if (gameId) {
