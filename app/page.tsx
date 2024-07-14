@@ -1,12 +1,12 @@
 // page.tsx
 "use client"
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import ThreeScene from "@/components/ThreeScene";
 import GamePhaseButtons from "@/components/GamePhaseButtons";
 import { LeftDrawer } from "@/components/LeftDrawer";
 import { RightDrawer } from "@/components/RightDrawer";
-import { playersAtom, handleCellClickAtom } from '@/atoms/gameAtoms';
+import { playersAtom, handleCellClickAtom, isGameStartedAtom, isTurnAtom, currentPlayerAtom, nextTurnAtom } from '@/atoms/gameAtoms';
 
 // Define the PopulationMarkerData interface
 interface PopulationMarkerData {
@@ -17,17 +17,20 @@ interface PopulationMarkerData {
   connections: string[];
 }
 
+const populationMarkerData: PopulationMarkerData[] = [
+  { lat: 42.16, lon: -21.91, population: 1000, cityName: 'Phoenix', connections: ['City2', 'City3'] },
+  { lat: 65, lon: 100, population: 500, cityName: 'City2', connections: ['Phoenix', 'City4'] },
+  { lat: 90, lon: 130, population: 750, cityName: 'City3', connections: ['Phoenix', 'City4'] },
+  { lat: 45, lon: 145, population: 250, cityName: 'City4', connections: ['City2', 'City3'] },
+];
+
 export default function Home() {
   const [, setPlayers] = useAtom(playersAtom);
   const [, handleCellClick] = useAtom(handleCellClickAtom);
-  const [isGameStarted, setIsGameStarted] = useState(false);
-  const [isTurn, setIsTurn] = useState(false);
-  const [populationMarkerData] = useState<PopulationMarkerData[]>([
-    { lat: 42.16, lon: -21.91, population: 1000, cityName: 'Phoenix', connections: ['City2', 'City3'] },
-    { lat: 65, lon: 100, population: 500, cityName: 'City2', connections: ['Phoenix', 'City4'] },
-    { lat: 90, lon: 130, population: 750, cityName: 'City3', connections: ['Phoenix', 'City4'] },
-    { lat: 45, lon: 145, population: 250, cityName: 'City4', connections: ['City2', 'City3'] },
-  ]);
+  const [isGameStarted, setIsGameStarted] = useAtom(isGameStartedAtom);
+  const [isTurn, setIsTurn] = useAtom(isTurnAtom);
+  const [, setCurrentPlayer] = useAtom(currentPlayerAtom);
+  const [, nextTurn] = useAtom(nextTurnAtom);
 
   useEffect(() => {
     // Initialize players
@@ -39,19 +42,12 @@ export default function Home() {
   const handleStartGame = () => {
     setIsGameStarted(true);
     setIsTurn(true);
+    setCurrentPlayer({ id: '1', name: 'Player 1', color: '#ff0000' });
   };
 
   const handleEndTurn = () => {
     setIsTurn(false);
-    // Add logic to switch to next player's turn
-  };
-
-  const handleBuy = () => {
-    // Add buy logic
-  };
-
-  const handleCards = () => {
-    // Add cards logic
+    nextTurn();
   };
 
   return (
@@ -66,8 +62,6 @@ export default function Home() {
         isTurn={isTurn}
         onStartGame={handleStartGame}
         onEndTurn={handleEndTurn}
-        onBuy={handleBuy}
-        onCards={handleCards}
       />
     </main>
   );
